@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import MDEditorLibrary
+import MDEditor
 
 struct ContentView: View {
     @State private var text: String = """

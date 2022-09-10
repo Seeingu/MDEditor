@@ -9,7 +9,7 @@ Only support macOS >12 for now, iOS support is in development
 
 ```swift
 import SwiftUI
-import MDEditorLibrary
+import MDEditor
 
 struct ContentView: View {
     @State private var text: String = """
