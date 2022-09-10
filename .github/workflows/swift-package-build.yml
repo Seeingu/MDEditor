@@ -1,0 +1,20 @@
+name: Swift
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: fwal/setup-swift@v1
+    - name: Get swift version
+      run: swift --version
+    - uses: actions/checkout@v3
+    - name: Build
+      run: cd MDEditorLibrary && swift build -v
