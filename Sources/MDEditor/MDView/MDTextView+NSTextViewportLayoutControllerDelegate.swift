@@ -73,7 +73,5 @@ extension MDTextView: NSTextViewportLayoutControllerDelegate {
         updateContentSizeIfNeeded()
         adjustViewportOffsetIfNeeded()
         updateSelectionHighlights()
-        updateBackgroundLayer()
-
     }
 }

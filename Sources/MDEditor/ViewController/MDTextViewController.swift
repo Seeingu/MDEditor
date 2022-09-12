@@ -7,8 +7,9 @@
 
 import AppKit
 import SwiftUI
+import MDTheme
 
-public class MDTextViewController: NSViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate {
+public class MDTextViewController: NSViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate, MDTextViewDelegate {
     private var textContentStorage: NSTextContentStorage
     private var textLayoutManager: NSTextLayoutManager
     private var textDocumentView: MDTextView!
@@ -23,17 +24,27 @@ public class MDTextViewController: NSViewController, NSTextContentManagerDelegat
             textDocumentView.isEditable = isEditable
         }
     }
-
+    public var themeProvider: ThemeProvider {
+        didSet {
+            textDocumentView.themeProvider = themeProvider
+            themeProvider.reloadEditorStyles()
+        }
+    }
     required init?(coder: NSCoder) {
         fatalError()
     }
 
-    public init(text: String, isEditable: Bool) {
+    public init(text: String, isEditable: Bool, themeProvider: ThemeProvider) {
         textLayoutManager = NSTextLayoutManager()
         textContentStorage = NSTextContentStorage()
         self.text = text
         self.isEditable = isEditable
+        self.themeProvider = themeProvider
         super.init(nibName: nil, bundle: nil)
+    }
+
+    convenience init(model: MDModel) {
+        self.init(text: model.text, isEditable: model.isEditable, themeProvider: model.themeProvider)
     }
 
     public override func loadView() {

@@ -6,8 +6,8 @@
 //
 
 import AppKit
-
-typealias StringAttributes = [NSAttributedString.Key: Any]
+import MDTheme
+import MDCommon
 
 class MDTextView: NSView {
     var textLayoutManager: NSTextLayoutManager! {
@@ -23,26 +23,21 @@ class MDTextView: NSView {
 
         // MARK: - style config
 
-        /// default textview padding
-    internal var padding: CGFloat = 5.0
-
         // Colors support.
-    var selectionColor: NSColor { return .selectedTextBackgroundColor }
-    var caretColor: NSColor { return .black }
-    var layerBackgroundColor: NSColor { .white }
     var blockQuoteBackgroundColor: NSColor { .systemMint }
 
-    var defaultAttributes: StringAttributes {
-        let paragraph = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
-        paragraph.lineHeightMultiple = 1.1
-        paragraph.defaultTabInterval = 28
-        return [
-            .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .regular),
-            .paragraphStyle: paragraph
-        ]
-    }
-
     var isEditable: Bool = true
+    var themeProvider: ThemeProvider = ThemeProvider.default {
+        didSet {
+            // TODO: only need parse once
+            updateMarkdownRender(string)
+            relayout()
+        }
+
+    }
+    internal var padding: CGFloat {
+        CGFloat(themeProvider.editorStyles.padding)
+    }
 
     internal var mdAttrs: [MDAttr] = []
     internal var blockQuoteRanges: [NSRange] = []
@@ -52,37 +47,45 @@ class MDTextView: NSView {
         didSet {
             textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
             setDefaultAttributes()
-            decorateMarkdown(string)
+            updateMarkdownRender(string)
             relayout()
         }
     }
 
     private func setDefaultAttributes() {
         let documentNSRange = convertRange(from: textContentStorage.documentRange)
-        textContentStorage.textStorage?.setAttributes(defaultAttributes, range: documentNSRange)
+        textContentStorage.textStorage?.setAttributes(themeProvider.defaultMarkdownStyles.toAttributes(), range: documentNSRange)
     }
 
-    private func mergeDefaultAttributes(_ attrs: StringAttributes) -> StringAttributes {
-        attrs.merging(defaultAttributes) { (curr, _) in
-            curr
-        }
-    }
-
-    func decorateMarkdown(_ string: String) {
+    internal func updateMarkdownRender(_ string: String) {
         let parser = MDParser(string)
-        // TODO: parse modified part
+        // TODO: parse modified part only
         parser.parse()
         mdAttrs = parser.attrs
         blockQuoteRanges = []
         for attr in mdAttrs {
             textContentStorage.textStorage?.invalidateAttributes(in: attr.range)
-            let attributes = mergeDefaultAttributes(attr.attrs)
-            textContentStorage.textStorage?.setAttributes(attributes, range: attr.range)
-            if attr.mdType == .blockQuote {
-                blockQuoteRanges.append(attr.range)
+            var style: MDSupportStyle?
+            switch attr.mdType {
+                case .heading(let level):
+                    style = themeProvider.headingStyle(level: level)
+                case .blockQuote:
+                    style = themeProvider.blockQuoteStyle()
+                    blockQuoteRanges.append(attr.range)
+                case .codeBlock:
+                    style = themeProvider.codeBlockStyle()
+                case .codeInline:
+                    style = themeProvider.inlineCodeStyle()
+                @unknown default:
+                    style = themeProvider.defaultMarkdownStyles
             }
+            // set background color of paragraph individually
+            if style?.paragraph.backgroundColor != nil {
+                print("background render")
+                setParagraphBackgroundColor(in: attr.range)
+            }
+            textContentStorage.textStorage?.setAttributes(style!.toAttributes(), range: attr.range)
         }
-        updateBackgroundLayer()
     }
 
     private var boundsDidChangeObserver: NSObjectProtocol?
@@ -106,7 +109,7 @@ class MDTextView: NSView {
         wantsLayer = true
         autoresizingMask = [.width, .height]
 
-        layer?.backgroundColor = layerBackgroundColor.cgColor
+        layer?.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
 
         selectionLayer = MDBaseLayer()
         selectionLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
@@ -137,41 +140,23 @@ class MDTextView: NSView {
         super.prepareContent(in: rect)
     }
 
-        /// render text unrelated markdown style
-    internal func updateBackgroundLayer() {
-        backgroundLayer.sublayers = nil
-
-        for nsRange in blockQuoteRanges {
-            guard let textRange = convertRange(from: nsRange) else {
-                continue
-            }
-            textLayoutManager.enumerateTextSegments(in: textRange, type: .highlight, options: []) { (_, frame, _, _) in
-                var boundFrame = frame
-                boundFrame = boundFrame.insetBy(dx: 0, dy: -padding * 2)
-                boundFrame.origin.x += padding
-                let layer = MDBaseLayer()
-                layer.backgroundColor = CGColor.transform(from: blockQuoteBackgroundColor.cgColor)
-                layer.frame = boundFrame
-                backgroundLayer.addSublayer(layer)
-                return true
-            }
+    internal func setParagraphBackgroundColor(in range: NSRange) {
+        guard let textRange = convertRange(from: range) else {
+            return
         }
-
-        if !isEditable {
-            let textLayer = CATextLayer()
-            textLayer.string = "View Only"
-            textLayer.alignmentMode = .center
-            textLayer.fontSize = 16
-            textLayer.isWrapped = true
-            textLayer.foregroundColor = NSColor.systemCyan.cgColor
-            textLayer.contentsScale = 2
-
-                // TODO: use ctfont measure font metrics
-            textLayer.frame = CGRect(x: 600, y: 60, width: 120, height: 40)
-
-            backgroundLayer.addSublayer(textLayer)
+        textLayoutManager.enumerateTextSegments(in: textRange, type: .highlight, options: []) { (_, frame, _, _) in
+            var boundFrame = frame
+                // TODO: use custom background setting
+            boundFrame = boundFrame.insetBy(dx: 0, dy: -4 * 2)
+            boundFrame.origin.x += padding
+            let layer = MDBaseLayer()
+            layer.backgroundColor = blockQuoteBackgroundColor.cgColor
+            layer.frame = boundFrame
+            backgroundLayer.addSublayer(layer)
+            return true
         }
     }
+        /// render text unrelated markdown style
 
         /// use hightlight frame to render highlight selection or caret
     internal func updateSelectionHighlights() {
@@ -186,10 +171,10 @@ class MDTextView: NSView {
                         highlightFrame.origin.x += padding
                         let highlight = MDBaseLayer()
                         if highlightFrame.size.width > 0 {
-                            highlight.backgroundColor = CGColor.transform(from: selectionColor.cgColor, alpha: 0.5)
+                            highlight.backgroundColor = themeProvider.editorStyles.selectionColor.cgColor
                         } else {
                             highlightFrame.size.width = 1 // fatten up the cursor
-                            highlight.backgroundColor = caretColor.cgColor
+                            highlight.backgroundColor = themeProvider.editorStyles.caretColor.cgColor
                         }
                         highlight.frame = highlightFrame
                         selectionLayer.addSublayer(highlight)
