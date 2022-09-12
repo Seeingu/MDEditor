@@ -7,12 +7,30 @@
 
 import SwiftUI
 import MDEditor
+import MDTheme
+
+class CustomThemeProvider: ThemeProvider, EditorThemeDelegate, MarkdownThemeDelegate {
+    override init() {
+        super.init()
+        self.editorThemeDelegate = self
+        self.markdownThemeDelegate = self
+    }
+
+    func loadEditorStyles(_ defaultStyles: EditorStyles) -> EditorStyles {
+        var style = defaultStyles
+        style.caretColor = .blue
+        style.padding = 20
+        return style
+    }
+}
 
 struct ContentView: View {
     @State private var text: String = """
     # title
 
-    markdown text
+    markdown _text_, **bold**, ***bold and italic***, ~~deleted~~
+
+    ---
 
     # title2
 
@@ -27,20 +45,34 @@ struct ContentView: View {
 
     `code` [Duck Duck Go](https://duckduckgo.com)
 
+    - [x] finished
+    - [ ] todo
+
+    - item1
+    - item2
+
     ```js
     let a = 1;
     ```
 
+    | Syntax      | Description |
+    | ----------- | ----------- |
+    | Header      | Title       |
+    | Paragraph   | Text        |
+
     ![Image](https://via.placeholder.com/150)
+
 
 
     """
 
     @State private var isEditable: Bool = true
+    @State var customTheme = CustomThemeProvider()
 
     var body: some View {
         ZStack {
             MDEditor(text: $text, isEditable: $isEditable)
+                .theme(provider: customTheme)
         }
     }
 }

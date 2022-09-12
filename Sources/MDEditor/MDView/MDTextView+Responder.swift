@@ -14,7 +14,7 @@ extension MDTextView {
             return
         }
         textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
-        decorateMarkdown(textContentStorage.textStorage!.string)
+        updateMarkdownRender(textContentStorage.textStorage!.string)
         relayout()
     }
 

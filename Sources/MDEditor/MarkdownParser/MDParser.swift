@@ -7,6 +7,7 @@
 
 import AppKit
 import Markdown
+import MDCommon
 
 struct LineInfo {
     let source: String
@@ -15,12 +16,6 @@ struct LineInfo {
     let endLoc: Int
 }
 
-enum MDType {
-    case paragraph
-    case code
-    case text
-    case blockQuote
-}
 struct MDAttr {
     let plain: String
     let attrs: [NSAttributedString.Key: Any]
@@ -65,25 +60,7 @@ private struct Visitor: MarkupWalker {
         guard let sourceRange = heading.range else {
             return
         }
-        let headingLevel = heading.level
-        let paragraph = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
-        paragraph.lineHeightMultiple = 1.5
-            //                paragraph.lineSpacing = 20
-
-        var fontSize = 18
-        switch headingLevel {
-            case 1:
-                fontSize = 24
-            case 2:
-                fontSize = 22
-            default:
-                break
-        }
-        attrs.append(MDAttr(plain: "heading", attrs: [
-            .foregroundColor: NSColor.lightGray,
-            .font: NSFont.monospacedSystemFont(ofSize: CGFloat(fontSize), weight: .bold),
-            .paragraphStyle: paragraph
-        ], range: range(from: sourceRange), sourceRange: sourceRange))
+        attrs.append(MDAttr(plain: heading.plainText, attrs: [:], range: range(from: sourceRange), sourceRange: sourceRange, mdType: .heading(heading.level)))
     }
 
     mutating func visitBlockQuote(_ blockQuote: BlockQuote) {
@@ -99,10 +76,55 @@ private struct Visitor: MarkupWalker {
         guard let sourceRange = codeBlock.range else {
             return
         }
-        self.attrs.append(MDAttr(plain: codeBlock.code, attrs: [
-            .font: NSFont.systemFont(ofSize: 22),
-            .foregroundColor: NSColor.systemMint
+        self.attrs.append(MDAttr(plain: codeBlock.code, attrs: [:], range: range(from: sourceRange), sourceRange: sourceRange, mdType: .codeBlock))
+    }
+
+    mutating func visitLineBreak(_ lineBreak: LineBreak) {
+        // TODO
+    }
+
+    func visitSoftBreak(_ softBreak: SoftBreak) {
+        // TODO
+    }
+
+    mutating func visitThematicBreak(_ thematicBreak: ThematicBreak) {
+        guard let sourceRange = thematicBreak.range else {
+            return
+        }
+        let paragraph = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+        paragraph.lineHeightMultiple = 0.8
+        self.attrs.append(MDAttr(plain: "", attrs: [
+            .font: NSFont.systemFont(ofSize: 20, weight: .light),
+            .paragraphStyle: paragraph
         ], range: range(from: sourceRange), sourceRange: sourceRange))
+    }
+
+    mutating func visitStrikethrough(_ strikethrough: Strikethrough) {
+        guard let sourceRange = strikethrough.range else {
+            return
+        }
+        self.attrs.append(MDAttr(plain: strikethrough.plainText, attrs: [
+            .strikethroughStyle: 1
+        ], range: range(from: sourceRange), sourceRange: sourceRange))
+    }
+
+    mutating func visitOrderedList(_ orderedList: OrderedList) {
+        orderedList.listItems.forEach { item in
+            self.attrs.append(MDAttr(plain: String(item.indexInParent), attrs: [
+                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
+            ], range: range(from: item.range!), sourceRange: item.range!))
+        }
+    }
+
+        /// visit unordered list's item
+    mutating func visitListItem(_ listItem: ListItem) {
+        attrs.append(MDAttr(plain: listItem.format(), attrs: [
+                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
+        ], range: range(from: listItem.range!), sourceRange: listItem.range!))
+    }
+
+    func visitTable(_ table: Table) {
+        // TODO
     }
 
     // MARK: - inline
@@ -114,9 +136,7 @@ private struct Visitor: MarkupWalker {
         let paragraph = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraph.lineHeightMultiple = 1.1
         paragraph.defaultTabInterval = 28 // default
-        attrs.append(MDAttr(plain: text.plainText, attrs: [
-            .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .regular),
-            .paragraphStyle: paragraph
+        attrs.append(MDAttr(plain: text.plainText, attrs: [:
         ], range: range(from: sourceRange), sourceRange: sourceRange))
 
     }
@@ -132,7 +152,7 @@ private struct Visitor: MarkupWalker {
 
     /// italic
     mutating func visitEmphasis(_ emphasis: Emphasis) {
-
+        // TODO: should handle bold and italic
         guard let sourceRange = emphasis.range else {
             return
         }
@@ -174,28 +194,13 @@ private struct Visitor: MarkupWalker {
         ], range: makeRange(lines: self.lines, lowerLine: lowerLine, lowerColumn: imageSourceRangeLowerColumn, upperLine: upperLine, upperColumn: imageSourceRangeUpperColumn), sourceRange: image.range!))
     }
 
-    mutating func visitOrderedList(_ orderedList: OrderedList) {
-        orderedList.listItems.forEach { item in
-            self.attrs.append(MDAttr(plain: String(item.indexInParent), attrs: [
-                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
-            ], range: range(from: item.range!), sourceRange: item.range!))
-        }
-    }
-
     mutating func visitInlineCode(_ inlineCode: InlineCode) {
-        self.attrs.append(MDAttr(plain: inlineCode.plainText, attrs: [
-            .font: NSFont.systemFont(ofSize: 22),
-            .foregroundColor: NSColor.systemMint
-        ], range: range(from: inlineCode.range!), sourceRange: inlineCode.range!))
+        self.attrs.append(MDAttr(plain: inlineCode.plainText, attrs: [:], range: range(from: inlineCode.range!), sourceRange: inlineCode.range!, mdType: .codeInline))
     }
 
-    mutating func visitListItem(_ listItem: ListItem) {
-        attrs.append(MDAttr(plain: "", attrs: [
-                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
-        ], range: range(from: listItem.range!), sourceRange: listItem.range!))
-    }
 }
 
+// MARK: - Parser
 class MDParser {
     private var string: String
     public var lines: [LineInfo] = []
