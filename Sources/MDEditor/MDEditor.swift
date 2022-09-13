@@ -8,6 +8,7 @@
 import SwiftUI
 import MDTheme
 
+#if os(macOS)
 public struct MDEditor: NSViewControllerRepresentable {
     @ObservedObject private var model = MDModel()
     @Binding private var text: String
@@ -28,6 +29,29 @@ public struct MDEditor: NSViewControllerRepresentable {
         nsViewController.themeProvider = model.themeProvider
     }
 }
+
+#else
+public struct MDEditor: UIViewControllerRepresentable {
+    @ObservedObject private var model = MDModel()
+    @Binding private var text: String
+    @Binding private var isEditable: Bool
+    public typealias UIViewControllerType = MDTextViewController
+
+    public init(text: Binding<String>, isEditable: Binding<Bool>) {
+        self._text = text
+        self._isEditable = isEditable
+    }
+
+    public func makeUIViewController(context: Context) -> MDTextViewController {
+        let controller = UIViewControllerType(text: text, isEditable: isEditable, themeProvider: model.themeProvider)
+        return controller
+    }
+
+    public func updateUIViewController(_ uiViewController: MDTextViewController, context: Context) {
+        uiViewController.themeProvider = model.themeProvider
+    }
+}
+#endif
 
 extension MDEditor {
     public func theme(provider: ThemeProvider) -> some View {

@@ -5,12 +5,17 @@
 //  Created by seeu on 2022/9/11.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
+
 import MDCommon
 
 internal class ThemeBuilder {
     static let defaultStyle = ThemeBuilder()
-        .font(NSFont.monospacedSystemFont(ofSize: 20, weight: .regular))
+        .font(MDFont.monospacedSystemFont(ofSize: 20, weight: .regular))
         .paragraph(lineHeight: 1.1)
         .build()
 
@@ -25,23 +30,23 @@ internal class ThemeBuilder {
         style.backgroundColor = s.backgroundColor
     }
 
-    func paragraph(lineHeight: Float = 1.1, backgroundColor: NSColor? = nil) -> Self {
+    func paragraph(lineHeight: Float = 1.1, backgroundColor: MDColor? = nil) -> Self {
         style.paragraph.lineHeight = lineHeight
         style.paragraph.backgroundColor = backgroundColor
         return self
     }
 
-    func font(_ value: NSFont) -> Self {
+    func font(_ value: MDFont) -> Self {
         style.font = value
         return self
     }
 
-    func foregroundColor(_ value: NSColor?) -> Self {
+    func foregroundColor(_ value: MDColor?) -> Self {
         style.foregroundColor = value
         return self
     }
 
-    func backgroundColor(_ value: NSColor?) -> Self {
+    func backgroundColor(_ value: MDColor?) -> Self {
         style.backgroundColor = value
         return self
     }

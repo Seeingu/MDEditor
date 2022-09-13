@@ -5,21 +5,26 @@
 //  Created by seeu on 2022/9/12.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
+import MDCommon
 
 // MARK: High level markdown style
 public struct SupportParagraphStyle {
     public var lineHeight: Float
-    public var backgroundColor: NSColor?
+    public var backgroundColor: MDColor?
 }
 
 public struct MDSupportStyle {
-    public var font: NSFont
+    public var font: MDFont
     public var paragraph: SupportParagraphStyle
-    public var foregroundColor: NSColor?
-    public var backgroundColor: NSColor?
+    public var foregroundColor: MDColor?
+    public var backgroundColor: MDColor?
     init() {
-        self.font = NSFont.monospacedSystemFont(ofSize: 20, weight: .regular)
+        self.font = MDFont.monospacedSystemFont(ofSize: 20, weight: .regular)
         self.paragraph = SupportParagraphStyle(lineHeight: 1.1)
     }
 }
