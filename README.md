@@ -3,7 +3,10 @@
 Markdown editor and viewer in Swift, text rendering and processing by using Textkit2, 
 and use swift-markdown as markdown-gfm parsing tool
 
-Only support macOS >12 for now, iOS support is in development
+Support platform:
+- macOS >12
+- iOS >15.6 (iOS 16.0 feature used: [UIEditMenuInteraction](https://developer.apple.com/documentation/uikit/uieditmenuinteraction))
+
 
 ## Usage
 
