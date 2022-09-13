@@ -1,11 +1,11 @@
 //
-//  File.swift
+//  MDEditTextViewDelegate.swift
 //  
 //
 //  Created by seeu on 2022/9/11.
 //
 
-import AppKit
+import Foundation
 
 public protocol MDTextViewDelegate {
     func onTextChange(_ text: String)

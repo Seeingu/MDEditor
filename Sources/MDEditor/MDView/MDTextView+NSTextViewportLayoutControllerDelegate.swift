@@ -5,9 +5,14 @@
 //  Created by seeu on 2022/9/7.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 extension MDTextView: NSTextViewportLayoutControllerDelegate {
+        #if os(macOS)
     func viewportBounds(for textViewportLayoutController: NSTextViewportLayoutController) -> CGRect {
         let overdrawRect = preparedContentRect
         let visibleRect = self.visibleRect
@@ -27,17 +32,19 @@ extension MDTextView: NSTextViewportLayoutControllerDelegate {
         return CGRect(x: bounds.minX, y: minY, width: bounds.width, height: maxY - minY)
     }
 
+        #else
+    func viewportBounds(for textViewportLayoutController: NSTextViewportLayoutController) -> CGRect {
+        var rect = CGRect()
+        rect.size = contentSize
+        rect.origin = contentOffset
+
+        return rect
+    }
+        #endif
+
     func textViewportLayoutControllerWillLayout(_ controller: NSTextViewportLayoutController) {
         contentLayer.sublayers = nil
         CATransaction.begin()
-    }
-
-    private func animate(_ layer: CALayer, from source: CGPoint, to destination: CGPoint) {
-        let animation = CABasicAnimation(keyPath: "position")
-        animation.fromValue = source
-        animation.toValue = destination
-        animation.duration = 0.3
-        layer.add(animation, forKey: nil)
     }
 
     private func findOrCreateLayer(_ textLayoutFragment: NSTextLayoutFragment) -> (MDTextLayoutFragmentLayer, Bool) {
@@ -71,6 +78,8 @@ extension MDTextView: NSTextViewportLayoutControllerDelegate {
     func textViewportLayoutControllerDidLayout(_ controller: NSTextViewportLayoutController) {
         CATransaction.commit()
         updateContentSizeIfNeeded()
+        // FIXME: not have to relayout text container size every time
+        updateTextContainerSize()
         adjustViewportOffsetIfNeeded()
         updateSelectionHighlights()
     }

@@ -5,7 +5,11 @@
 //  Created by seeu on 2022/9/10.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 extension MDTextView {
     internal func convertRange(from nsRange: NSRange) -> NSTextRange? {

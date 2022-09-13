@@ -5,7 +5,7 @@
 //  Created by seeu on 2022/9/11.
 //
 
-import AppKit
+import Foundation
 
 public typealias StringAttributes = [NSAttributedString.Key: Any]
 

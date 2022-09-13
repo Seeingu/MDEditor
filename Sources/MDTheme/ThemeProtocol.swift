@@ -5,7 +5,7 @@
 //  Created by seeu on 2022/9/12.
 //
 
-import AppKit
+import Foundation
 
 /// editor setting
 public protocol EditorThemeDelegate: AnyObject {

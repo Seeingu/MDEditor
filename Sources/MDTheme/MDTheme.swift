@@ -5,7 +5,6 @@
 //  Created by seeu on 2022/9/11.
 //
 
-import AppKit
 import MDCommon
 
 open class ThemeProvider {

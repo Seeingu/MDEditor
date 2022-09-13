@@ -9,6 +9,11 @@ import Foundation
 
 extension MDTextView {
     func relayout() {
-        layer?.setNeedsLayout()
+        #if os(macOS)
+        guard let layer = layer else {
+            return
+        }
+        #endif
+        layer.setNeedsLayout()
     }
 }

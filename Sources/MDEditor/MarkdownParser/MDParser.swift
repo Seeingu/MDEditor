@@ -5,7 +5,11 @@
 //  Created by seeu on 2022/9/7.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 import Markdown
 import MDCommon
 
@@ -94,7 +98,7 @@ private struct Visitor: MarkupWalker {
         let paragraph = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
         paragraph.lineHeightMultiple = 0.8
         self.attrs.append(MDAttr(plain: "", attrs: [
-            .font: NSFont.systemFont(ofSize: 20, weight: .light),
+            .font: MDFont.systemFont(ofSize: 20, weight: .light),
             .paragraphStyle: paragraph
         ], range: range(from: sourceRange), sourceRange: sourceRange))
     }
@@ -111,7 +115,7 @@ private struct Visitor: MarkupWalker {
     mutating func visitOrderedList(_ orderedList: OrderedList) {
         orderedList.listItems.forEach { item in
             self.attrs.append(MDAttr(plain: String(item.indexInParent), attrs: [
-                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
+                .font: MDFont.monospacedSystemFont(ofSize: 20, weight: .thin)
             ], range: range(from: item.range!), sourceRange: item.range!))
         }
     }
@@ -119,7 +123,7 @@ private struct Visitor: MarkupWalker {
         /// visit unordered list's item
     mutating func visitListItem(_ listItem: ListItem) {
         attrs.append(MDAttr(plain: listItem.format(), attrs: [
-                .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .thin)
+                .font: MDFont.monospacedSystemFont(ofSize: 20, weight: .thin)
         ], range: range(from: listItem.range!), sourceRange: listItem.range!))
     }
 
@@ -146,7 +150,7 @@ private struct Visitor: MarkupWalker {
             return
         }
         attrs.append(MDAttr(plain: strong.plainText, attrs: [
-            .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .bold)
+            .font: MDFont.monospacedSystemFont(ofSize: 20, weight: .bold)
         ], range: range(from: sourceRange), sourceRange: sourceRange))
     }
 
@@ -157,7 +161,7 @@ private struct Visitor: MarkupWalker {
             return
         }
         attrs.append(MDAttr(plain: emphasis.plainText, attrs: [
-            .font: NSFont.monospacedSystemFont(ofSize: 20, weight: .regular).italics()
+            .font: MDFont.monospacedSystemFont(ofSize: 20, weight: .regular).italics()
         ], range: range(from: sourceRange), sourceRange: sourceRange))
     }
 

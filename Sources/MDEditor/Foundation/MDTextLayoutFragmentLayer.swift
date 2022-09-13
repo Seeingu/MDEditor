@@ -5,7 +5,11 @@
 //  Created by seeu on 2022/9/6.
 //
 
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 class MDTextLayoutFragmentLayer: MDBaseLayer {
     var layoutFragment: NSTextLayoutFragment!

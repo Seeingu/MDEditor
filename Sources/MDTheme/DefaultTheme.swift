@@ -5,7 +5,8 @@
 //  Created by seeu on 2022/9/12.
 //
 
-import AppKit
+import MDCommon
+import CoreGraphics
 
 // MARK: - Editor
 public extension EditorThemeDelegate {
@@ -15,12 +16,12 @@ public extension EditorThemeDelegate {
 }
 
 public struct EditorStyles {
-    public var selectionColor: NSColor
-    public var caretColor: NSColor
-    public var editorBackground: NSColor
+    public var selectionColor: MDColor
+    public var caretColor: MDColor
+    public var editorBackground: MDColor
     public var padding: Float
 
-    static let `default` = EditorStyles(selectionColor: NSColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .black, editorBackground: .white, padding: 5.0)
+    static let `default` = EditorStyles(selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .black, editorBackground: .white, padding: 5.0)
 }
 
 // MARK: - Markdown
@@ -43,21 +44,21 @@ public extension MarkdownThemeDelegate {
 
         return ThemeBuilder(from: defaultStyle)
             .paragraph(lineHeight: 1.5)
-            .font(NSFont.monospacedSystemFont(ofSize: CGFloat(fontSize), weight: .bold))
+            .font(MDFont.monospacedSystemFont(ofSize: CGFloat(fontSize), weight: .bold))
             .foregroundColor(.lightGray)
             .build()
     }
 
     func loadCodeBlockStyles(_ defaultStyle: MDSupportStyle) -> MDSupportStyle {
         ThemeBuilder(from: defaultStyle)
-            .font(NSFont.systemFont(ofSize: 22))
+            .font(MDFont.systemFont(ofSize: 22))
             .foregroundColor(.systemMint)
             .build()
     }
 
     func loadInlineCodeStyles(_ defaultStyle: MDSupportStyle) -> MDSupportStyle {
         ThemeBuilder(from: defaultStyle)
-            .font(NSFont.systemFont(ofSize: 22))
+            .font(MDFont.systemFont(ofSize: 22))
             .foregroundColor(.systemMint)
             .build()
     }

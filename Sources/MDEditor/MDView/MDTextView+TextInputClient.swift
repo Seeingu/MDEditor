@@ -5,6 +5,27 @@
 //  Created by seeu on 2022/9/7.
 //
 
+// MARK: - Common
+
+extension MDTextView {
+    func insertString(_ string: String) {
+        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
+            replaceCharacters(in: textRange, with: string)
+        }
+    }
+
+    func insertString(_ string: String, replacementRange: NSRange) {
+        textContentStorage?.performEditingTransaction {
+            if let textRange = convertRange(from: replacementRange) {
+                replaceCharacters(in: textRange, with: string)
+            } else {
+                insertText(string)
+            }
+        }
+    }
+}
+
+#if os(macOS)
 import AppKit
 
 extension MDTextView: NSTextInputClient {
@@ -65,7 +86,6 @@ extension MDTextView: NSTextInputClient {
 
     override func insertText(_ string: Any) {
         guard let string = string as? String else {
-            print("Warning: insert text of unknown type \(type(of: string))")
             return
         }
         for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
@@ -75,7 +95,6 @@ extension MDTextView: NSTextInputClient {
 
     func insertText(_ string: Any, replacementRange: NSRange) {
         guard let string = string as? String else {
-            print("Warning: insert text of unknown type \(type(of: string))")
             return
         }
         textContentStorage?.performEditingTransaction {
@@ -88,3 +107,27 @@ extension MDTextView: NSTextInputClient {
     }
 
 }
+#else
+import UIKit
+
+extension MDTextView: UIKeyInput {
+    override var canBecomeFirstResponder: Bool {
+        true
+    }
+    var hasText: Bool {
+        textContentStorage.textStorage!.string.count > 0
+    }
+
+    func insertText(_ text: String) {
+        for textRange in textLayoutManager!.textSelections.flatMap(\.textRanges) {
+            replaceCharacters(in: textRange, with: text)
+        }
+        scrollToCaret()
+    }
+
+    func deleteBackward() {
+            //
+    }
+
+}
+#endif

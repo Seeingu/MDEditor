@@ -5,7 +5,7 @@
 //  Created by seeu on 2022/9/8.
 //
 
-import AppKit
+import MDCommon
 
 extension MDTextView {
         // MARK: - common
@@ -57,12 +57,6 @@ extension MDTextView {
         }
     }
 
-    private func updatePasteboard(with text: String) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.writeObjects([text as NSPasteboardWriting])
-    }
-
     private func moveCaret(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool) {
         updateTextSelection(direction: direction, destination: destination, extending: false, confined: true)
     }
@@ -70,7 +64,7 @@ extension MDTextView {
         updateTextSelection(direction: direction, destination: destination, extending: false)
     }
 
-    private func scrollToCaret() {
+    internal func scrollToCaret() {
         guard let loc = textLayoutManager.insertionPointLocation else {
             return
         }
@@ -78,6 +72,22 @@ extension MDTextView {
             scrollToVisible(selection)
         }
     }
+
+    internal func changeCaretPosition(at point: CGPoint) {
+        var point = point
+        point.x -= padding
+        let nav = textLayoutManager.textSelectionNavigation
+
+        textLayoutManager.textSelections = nav.textSelections(
+            interactingAt: point,
+            inContainerAt: textLayoutManager.documentRange.location,
+            anchors: [],
+            modifiers: [],
+            selecting: true,
+            bounds: .zero)
+
+    }
+
     private func scrollToSelectionCaret() {
         guard let selection = textLayoutManager.firstSelection, let textRange = selection.textRanges.first else {
             return
@@ -104,6 +114,58 @@ extension MDTextView {
         }
     }
 
+    func selectWord() {
+        guard let selection = textLayoutManager.firstSelection else {
+            return
+        }
+        textLayoutManager.textSelections = [
+            textLayoutManager.textSelectionNavigation.textSelection(for: .word, enclosing: selection)
+        ]
+    }
+
+    func selectLine() {
+        guard let selection = textLayoutManager.firstSelection else {
+            return
+        }
+        textLayoutManager.textSelections = [
+            textLayoutManager.textSelectionNavigation.textSelection(for: .line, enclosing: selection)
+        ]
+    }
+
+    func copyAction() {
+        if let textSelectionsString = textLayoutManager.textSelectionsString(), !textSelectionsString.isEmpty {
+            MDPasteboard.writeToPasteboard(with: textSelectionsString)
+        }
+    }
+
+    func pasteAction() {
+        guard let string = MDPasteboard.readPasteboard(),
+              let firstTextSelectionRange = textLayoutManager.textSelections.first?.textRanges.first
+        else {
+            return
+        }
+
+        replaceCharacters(in: firstTextSelectionRange, with: string)
+    }
+
+    func cutAction() {
+        copyAction()
+        deleteAction()
+    }
+
+    func deleteAction() {
+        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
+            insertString("", replacementRange: convertRange(from: textRange))
+        }
+    }
+}
+
+#if os(macOS)
+import AppKit
+
+extension MDTextView {
+        // MARK: - mac common
+
     private func performMouseDownActions() {
         let attr = mdAttrs.first { attr in
             let attrRange = convertRange(from: attr.range)
@@ -126,17 +188,8 @@ extension MDTextView {
             case 3:
                 selectLine(self)
             default:
-                var point = convert(event.locationInWindow, from: nil)
-                point.x -= padding
-                let nav = textLayoutManager.textSelectionNavigation
-
-                textLayoutManager.textSelections = nav.textSelections(
-                    interactingAt: point,
-                    inContainerAt: textLayoutManager.documentRange.location,
-                    anchors: [],
-                    modifiers: [],
-                    selecting: true,
-                    bounds: .zero)
+                let point = convert(event.locationInWindow, from: nil)
+                changeCaretPosition(at: point)
 
                     // open link
                 if event.modifierFlags.contains(.command) {
@@ -190,33 +243,19 @@ extension MDTextView {
 
         // MARK: - copy & paste
     func copy(_ sender: Any?) {
-        if let textSelectionsString = textLayoutManager.textSelectionsString(), !textSelectionsString.isEmpty {
-            updatePasteboard(with: textSelectionsString)
-        }
+        copyAction()
     }
 
     func paste(_ sender: Any?) {
-        guard let string = NSPasteboard.general.string(forType: .string),
-              let firstTextSelectionRange = textLayoutManager.textSelections.first?.textRanges.first
-        else {
-            return
-        }
-
-        replaceCharacters(in: firstTextSelectionRange, with: string)
+        pasteAction()
     }
 
     func cut(_ sender: Any?) {
-        copy(sender)
-        delete(sender)
+        cutAction()
     }
 
     func delete(_ sender: Any?) {
-        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
-                // "replaceContents" doesn't work with NSTextContentStorage at all
-                // textLayoutManager.replaceContents(in: textRange, with: NSAttributedString())
-                //            textLayoutManager.replaceContents(in: textRange, with: NSAttributedString(string: ""))
-            insertText("", replacementRange: convertRange(from: textRange))
-        }
+        deleteAction()
     }
 
         // MARK: - Select
@@ -231,21 +270,11 @@ extension MDTextView {
     }
 
     override func selectWord(_ sender: Any?) {
-        guard let selection = textLayoutManager.firstSelection else {
-            return
-        }
-        textLayoutManager.textSelections = [
-            textLayoutManager.textSelectionNavigation.textSelection(for: .word, enclosing: selection)
-        ]
+        selectWord()
     }
 
     override func selectLine(_ sender: Any?) {
-        guard let selection = textLayoutManager.firstSelection else {
-            return
-        }
-        textLayoutManager.textSelections = [
-            textLayoutManager.textSelectionNavigation.textSelection(for: .line, enclosing: selection)
-        ]
+        selectLine()
     }
 
     override func selectParagraph(_ sender: Any?) {
@@ -406,3 +435,118 @@ extension MDTextView {
     }
 
 }
+#else
+// MARK: iOS gesture
+import UIKit
+
+enum EditIdentifier {
+    case longPress
+    case textEdit
+}
+
+extension MDTextView: UIEditMenuInteractionDelegate {
+    @available(iOS 16.0, *)
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        var actions = suggestedActions
+        guard let identifier = configuration.identifier as? EditIdentifier else {
+            return UIMenu(children: actions)
+        }
+        switch identifier {
+            case .longPress:
+                break
+            case .textEdit:
+                let indentationMenu = UIMenu(title: "", options: .displayInline, children: [
+                    UIAction(title: "Cut") { (_) in
+                        self.cutAction()
+                    },
+                    UIAction(title: "Copy") { (_) in
+                        self.copyAction()
+                    },
+                    UIAction(title: "Paste") { (_) in
+                        self.pasteAction()
+                    }
+                ])
+
+                actions.append(indentationMenu)
+        }
+
+        return UIMenu(children: actions)
+    }
+
+    internal func addGestureRecognizers() {
+        addLongPressGestureRecognizer()
+        addTapGestureRecognizer()
+        addDoubleTapGestureRecognizer()
+        addTripleTapGestureRecognizer()
+    }
+
+    func scrollToVisible(_ rect: CGRect) {
+        scrollRectToVisible(rect, animated: true)
+    }
+
+    private func addLongPressGestureRecognizer() {
+        let longPressGestureRecognizer =
+        UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
+        addGestureRecognizer(longPressGestureRecognizer)
+    }
+
+    private func presentEditMenu(_ point: CGPoint, identifier: EditIdentifier) {
+                if #available(iOS 16.0, *) {
+            let configuration = UIEditMenuConfiguration(identifier: identifier, sourcePoint: point)
+            if let interaction = editMenuInteraction as? UIEditMenuInteraction {
+                interaction.presentEditMenu(with: configuration)
+            }
+        }
+
+    }
+
+    @objc
+    func handleLongPress(_ gestureRecognizer: UILongPressGestureRecognizer) {
+        guard gestureRecognizer.state == .began else { return }
+        presentEditMenu(convertGesture(gestureRecognizer), identifier: .longPress)
+    }
+
+    private func addTapGestureRecognizer() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
+        gesture.numberOfTapsRequired = 1
+        addGestureRecognizer(gesture)
+    }
+
+    private func addDoubleTapGestureRecognizer() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(_:)))
+        gesture.numberOfTapsRequired = 2
+        addGestureRecognizer(gesture)
+    }
+
+    private func addTripleTapGestureRecognizer() {
+        let gesture = UITapGestureRecognizer(target: self, action: #selector(handleTripleTap(_:)))
+        gesture.numberOfTapsRequired = 3
+        addGestureRecognizer(gesture)
+    }
+
+    @objc
+    func handleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        changeCaretPosition(at: gestureRecognizer.location(in: self))
+        becomeFirstResponder()
+        relayout()
+    }
+
+    @objc func handleDoubleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        selectWord()
+        presentEditMenu(convertGesture(gestureRecognizer), identifier: .textEdit)
+        relayout()
+    }
+
+    @objc func handleTripleTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        selectLine()
+        presentEditMenu(convertGesture(gestureRecognizer), identifier: .textEdit)
+        relayout()
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+}
+
+#endif

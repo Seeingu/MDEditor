@@ -5,11 +5,19 @@
 //  Created by seeu on 2022/9/6.
 //
 
+#if os(macOS)
 import AppKit
+public typealias MDViewController = NSViewController
+typealias MDScrollView = NSScrollView
+#else
+import UIKit
+public typealias MDViewController = UIViewController
+typealias MDScrollView = UIScrollView
+#endif
 import SwiftUI
 import MDTheme
 
-public class MDTextViewController: NSViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate, MDTextViewDelegate {
+public class MDTextViewController: MDViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate, MDTextViewDelegate {
     private var textContentStorage: NSTextContentStorage
     private var textLayoutManager: NSTextLayoutManager
     private var textDocumentView: MDTextView!
@@ -48,7 +56,6 @@ public class MDTextViewController: NSViewController, NSTextContentManagerDelegat
     }
 
     public override func loadView() {
-        let scrollView = NSScrollView()
         let textView = MDTextView(frame: .zero)
         textView.textContentStorage = textContentStorage
         textView.textLayoutManager = textLayoutManager
@@ -63,6 +70,9 @@ public class MDTextViewController: NSViewController, NSTextContentManagerDelegat
         textContainer.widthTracksTextView = true
         textContainer.heightTracksTextView = false
 
+        #if os(macOS)
+        let scrollView = MDScrollView()
+
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
         scrollView.drawsBackground = true
@@ -76,9 +86,15 @@ public class MDTextViewController: NSViewController, NSTextContentManagerDelegat
 
         scrollView.documentView = textView
 //        scrollView.contentView = clipView
-
         self.textDocumentView = textView
         self.view = scrollView
+        #else
+        textView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+
+        self.view = textView
+        self.textDocumentView = textView
+
+        #endif
 
     }
 
