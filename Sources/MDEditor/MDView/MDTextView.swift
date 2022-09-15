@@ -8,9 +8,11 @@
 import MDTheme
 import MDCommon
 #if os(macOS)
+// MARK: - mac
 import AppKit
 
 class MDTextView: NSView {
+    internal var lines: [MDSourceLineInfo] = []
     var textLayoutManager: NSTextLayoutManager! {
         didSet {
             if let tlm = textLayoutManager {
@@ -26,12 +28,11 @@ class MDTextView: NSView {
 
     var isEditable: Bool = true
 
-    internal var mdAttrs: [MDAttr] = []
+    internal var mdAttrs: [MDSourceAttribute] = []
     var themeProvider: ThemeProvider = ThemeProvider.default {
         didSet {
                 // TODO: only need parse once
             updateMarkdownRender(string)
-            relayout()
         }
     }
 
@@ -44,8 +45,8 @@ class MDTextView: NSView {
         didSet {
             textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
             setDefaultAttributes()
+            updateLineInfo(string)
             updateMarkdownRender(string)
-            relayout()
         }
     }
 
@@ -189,6 +190,8 @@ class MDTextView: NSView {
 import UIKit
 
 class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
+    internal var lines: [MDSourceLineInfo] = []
+
     let selectionColor = UIColor.systemBlue
     let caretColor = UIColor.tintColor
 
@@ -203,7 +206,6 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
             textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
             setDefaultAttributes()
             updateMarkdownRender(string)
-            relayout()
         }
     }
 
@@ -215,12 +217,11 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
         CGFloat(themeProvider.editorStyles.padding)
     }
 
-    internal var mdAttrs: [MDAttr] = []
+    internal var mdAttrs: [MDSourceAttribute] = []
     var themeProvider: ThemeProvider = ThemeProvider.default {
         didSet {
                 // TODO: only need parse once
             updateMarkdownRender(string)
-            relayout()
         }
     }
 

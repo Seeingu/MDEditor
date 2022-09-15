@@ -32,7 +32,7 @@ struct ContentView: View {
 
     ---
 
-    # title2
+    ## title2
 
     > Dorothy followed her through many of the beautiful rooms in her castle.
 
@@ -48,7 +48,7 @@ struct ContentView: View {
     - [x] finished
     - [ ] todo
 
-    - item1
+    - item1, _inlineStyle_
     - item2
 
     ```js

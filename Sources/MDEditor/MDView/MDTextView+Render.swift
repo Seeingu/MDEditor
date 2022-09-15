@@ -56,19 +56,18 @@ extension MDTextView {
         textContentStorage.textStorage?.setAttributes(themeProvider.defaultMarkdownStyles.toAttributes(), range: documentNSRange)
     }
 
-    internal func setParagraphBackgroundColor(in range: NSRange) {
+    internal func setParagraphBackgroundColor(in range: NSRange, color: MDColor) {
         guard let textRange = convertRange(from: range) else {
             return
         }
+        backgroundLayer.sublayers = nil
         textLayoutManager.enumerateTextSegments(in: textRange, type: .highlight, options: []) { (_, frame, _, _) in
             var boundFrame = frame
-                // TODO: use custom background setting
-            boundFrame = boundFrame.insetBy(dx: 0, dy: -4 * 2)
+                // TODO: render block in rectable
+            boundFrame = boundFrame.insetBy(dx: 0, dy: 0)
             boundFrame.origin.x += padding
             let layer = MDBaseLayer()
-                // TODO: use theme's paragraph backgroundColor
-            var blockQuoteBackgroundColor: MDColor = .systemMint
-            layer.backgroundColor = blockQuoteBackgroundColor.cgColor
+            layer.backgroundColor = color.cgColor
             layer.frame = boundFrame
             backgroundLayer.addSublayer(layer)
             return true
@@ -77,30 +76,101 @@ extension MDTextView {
 
     /// render markdown content
     internal func updateMarkdownRender(_ string: String) {
-        let parser = MDParser(string)
+        let parser = MDParser(string, lines: lines)
             // TODO: parse modified part only
         parser.parse()
         mdAttrs = parser.attrs
         for attr in mdAttrs {
+            // invalidate and set default styles
             textContentStorage.textStorage?.invalidateAttributes(in: attr.range)
-            var style: MDSupportStyle?
+            textContentStorage.textStorage?.setAttributes(themeProvider.defaultMarkdownStyles.toAttributes(), range: attr.range)
+
+            var attributes: [(MDSupportStyle, NSRange)] = []
+            var additionalStringAttributes: [(StringAttributes, NSRange)] = []
             switch attr.mdType {
-                case .heading(let level):
-                    style = themeProvider.headingStyle(level: level)
-                case .blockQuote:
-                    style = themeProvider.blockQuoteStyle()
-                case .codeBlock:
-                    style = themeProvider.codeBlockStyle()
-                case .codeInline:
-                    style = themeProvider.inlineCodeStyle()
+                case .heading(let mdHeading):
+                    let headingStyle = themeProvider.headingStyle(level: mdHeading.level.0)
+                    attributes.append((headingStyle.level, makeRange(line: mdHeading.startLine, range: mdHeading.level.range)))
+                    attributes.append((headingStyle.plainText, makeRange(line: mdHeading.startLine, range: mdHeading.plainText.range)))
+                case .blockQuote(let mdBlockQuote):
+                    let blockQuoteStyle = themeProvider.blockQuoteStyle()
+                    var line = mdBlockQuote.startLine
+                    for block in mdBlockQuote.blocks {
+                        print("block \(block.symbol)")
+                        attributes.append((blockQuoteStyle.symbol, makeRange(line: line, range: block.symbol.range)))
+                        attributes.append((blockQuoteStyle.plainText, makeRange(line: line, range: block.plainText.range)))
+                        line += 1
+                    }
+
+                case .codeBlock(let mdCodeBlock):
+                    let codeBlockStyle = themeProvider.codeBlockStyle()
+                    attributes.append((codeBlockStyle.plainText, makeRange(line: mdCodeBlock.startLine, range: mdCodeBlock.plainText.range)))
+                    attributes.append((codeBlockStyle.quote, makeRange(line: mdCodeBlock.startLine, range: mdCodeBlock.startSymbol.range)))
+                    attributes.append((codeBlockStyle.quote, makeRange(line: mdCodeBlock.startLine, range: mdCodeBlock.endSymbol.range)))
+                    if mdCodeBlock.language != nil {
+                        attributes.append((codeBlockStyle.language, makeRange(line: mdCodeBlock.startLine, range: mdCodeBlock.language!.range)))
+                    }
+                case .codeInline(let mdInlineCode):
+                    let inlineCodeStyle = themeProvider.inlineCodeStyle()
+                    attributes.append((inlineCodeStyle.code, makeRange(line: mdInlineCode.startLine, range: mdInlineCode.plainText.range)))
+                    attributes.append((inlineCodeStyle.quote, makeRange(line: mdInlineCode.startLine, range: mdInlineCode.startSymbol.range)))
+                    attributes.append((inlineCodeStyle.quote, makeRange(line: mdInlineCode.startLine, range: mdInlineCode.endSymbol.range)))
+                case .emphasis(let mdEmphasis):
+                    let emphasisStyle = themeProvider.emphasisStyle(emphasisType: mdEmphasis.type)
+                    attributes.append((emphasisStyle.symbol, makeRange(line: mdEmphasis.startLine, range: mdEmphasis.startSymbol.range)))
+                    attributes.append((emphasisStyle.symbol, makeRange(line: mdEmphasis.startLine, range: mdEmphasis.endSymbol.range)))
+                    attributes.append((emphasisStyle.plainText, makeRange(line: mdEmphasis.startLine, range: mdEmphasis.plainText.range)))
+                case .link(let mdLink):
+                    let linkStyle = themeProvider.linkStyle()
+                    attributes.append((linkStyle.text, makeRange(line: mdLink.startLine, range: mdLink.title.range)))
+                    let linkRange = makeRange(line: mdLink.startLine, range: mdLink.link.range)
+                        // set link styles directly
+                    var linkAttributes = linkStyle.link.toAttributes()
+                    linkAttributes[.link] = NSURL(string: mdLink.link.0)!
+                    additionalStringAttributes.append((linkAttributes, linkRange))
+                case .strikeThrough(let mdStrikeThrough):
+                    let strikeThroughStyle = themeProvider.strikeThroughStyle()
+                    attributes.append((strikeThroughStyle.symbol, makeRange(line: mdStrikeThrough.startLine, range: mdStrikeThrough.startSymbol.range)))
+                    attributes.append((strikeThroughStyle.symbol, makeRange(line: mdStrikeThrough.startLine, range: mdStrikeThrough.endSymbol.range)))
+
+                        // set strike throught styles directly
+                    var strikeThroughTextAttributes = strikeThroughStyle.plainText.toAttributes()
+                    strikeThroughTextAttributes[.strikethroughStyle] = 1
+                    additionalStringAttributes.append((strikeThroughTextAttributes, makeRange(line: mdStrikeThrough.startLine, range: mdStrikeThrough.plainText.range)))
+
+                case .image(let mdImage):
+                    let imageStyle = themeProvider.imageStyle()
+                    let linkRange = makeRange(line: mdImage.startLine, range: mdImage.link.range)
+                    attributes.append((imageStyle.title, makeRange(line: mdImage.startLine, range: mdImage.title.range)))
+
+                        // set link styles directly
+                    var linkAttributes = imageStyle.link.toAttributes()
+                    linkAttributes[.link] = NSURL(string: mdImage.link.0)!
+                    additionalStringAttributes.append((linkAttributes, linkRange))
+                case .unorderedList(let unorderedList):
+                    let unorderedListStyle = themeProvider.unorderedListStyle()
+                    unorderedList.items.forEach { item in
+                        attributes.append((unorderedListStyle.prefix, makeRange(line: item.startLine, range: item.prefix.range)))
+                    }
+                case .lineBreak(let lineBreak):
+                    let lineBreakStyle = themeProvider.lineBreakStyle()
+                    attributes.append((lineBreakStyle.plainText, makeRange(line: lineBreak.startLine, range: lineBreak.plainText.range)))
+                case .text:
+                    // text use default style
+                    break
                 @unknown default:
-                    style = themeProvider.defaultMarkdownStyles
+                    print("default: \(attr.plain) \(attr.mdType)")
             }
                 // set background color of paragraph individually
-            if style?.paragraph.backgroundColor != nil {
-                setParagraphBackgroundColor(in: attr.range)
+            for attribute in additionalStringAttributes {
+                textContentStorage.textStorage?.setAttributes(attribute.0, range: attribute.1)
             }
-            textContentStorage.textStorage?.setAttributes(style!.toAttributes(), range: attr.range)
+            for attribute in attributes {
+                if attribute.0.paragraph.backgroundColor != nil {
+                    setParagraphBackgroundColor(in: attribute.1, color: attribute.0.paragraph.backgroundColor!)
+                }
+                textContentStorage.textStorage?.setAttributes(attribute.0.toAttributes(), range: attribute.1)
+            }
         }
     }
 

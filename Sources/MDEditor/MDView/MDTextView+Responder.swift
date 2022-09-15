@@ -14,8 +14,9 @@ extension MDTextView {
             return
         }
         textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
-        updateMarkdownRender(textContentStorage.textStorage!.string)
+        updateLineInfo(textContentStorage.textStorage!.string)
         relayout()
+        updateMarkdownRender(textContentStorage.textStorage!.string)
     }
 
     private func moveSelection(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool = false) {
@@ -222,13 +223,27 @@ extension MDTextView {
 
         // MARK: - keyboard event
     override func keyDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.command) {
+            switch event.charactersIgnoringModifiers {
+                case "c":
+                    copyAction()
+                    return
+                case "v":
+                    pasteAction()
+                    return
+                case "x":
+                    cutAction()
+                    return
+                default:
+                    break
+            }
+        }
         interpretKeyEvents([event])
     }
-
         // MARK: - insert
 
     override func insertTab(_ sender: Any?) {
-        insertText("\t")
+        insertString("\t")
     }
 
     override func insertLineBreak(_ sender: Any?) {
@@ -236,26 +251,13 @@ extension MDTextView {
     }
 
     override func insertNewline(_ sender: Any?) {
-        insertText("\n")
-
-        scrollToCaret()
+        insertString("\n")
     }
 
         // MARK: - copy & paste
-    func copy(_ sender: Any?) {
-        copyAction()
-    }
 
-    func paste(_ sender: Any?) {
-        pasteAction()
-    }
-
-    func cut(_ sender: Any?) {
+    override func yank(_ sender: Any?) {
         cutAction()
-    }
-
-    func delete(_ sender: Any?) {
-        deleteAction()
     }
 
         // MARK: - Select

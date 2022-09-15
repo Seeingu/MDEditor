@@ -51,6 +51,11 @@ internal class ThemeBuilder {
         return self
     }
 
+    func link() -> Self {
+        style.isLink = true
+        return self
+    }
+
     func build() -> MDSupportStyle {
         self.style
     }
