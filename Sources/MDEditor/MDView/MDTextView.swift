@@ -31,7 +31,6 @@ class MDTextView: NSView {
     internal var mdAttrs: [MDSourceAttribute] = []
     var themeProvider: ThemeProvider = ThemeProvider.default {
         didSet {
-                // TODO: only need parse once
             updateMarkdownRender(string)
         }
     }
@@ -107,6 +106,7 @@ class MDTextView: NSView {
         super.viewDidEndLiveResize()
         adjustViewportOffsetIfNeeded()
         updateContentSizeIfNeeded()
+        updateMarkdownRender(string)
     }
 
         // Scroll view support.
@@ -220,7 +220,6 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
     internal var mdAttrs: [MDSourceAttribute] = []
     var themeProvider: ThemeProvider = ThemeProvider.default {
         didSet {
-                // TODO: only need parse once
             updateMarkdownRender(string)
         }
     }

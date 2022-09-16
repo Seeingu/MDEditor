@@ -29,6 +29,7 @@ public typealias NSRangeOfLine = NSRange
 public typealias MDIntLineRange = (Int, range: NSRangeOfLine)
 public typealias MDStringLineRange = (String, range: NSRangeOfLine)
 
+// MARK: - Block
 public struct MDHeading: MDBlock {
     public var startLine: Int
 
@@ -96,16 +97,19 @@ public struct MDUnorderedItem: MDBlock {
     public let indexInParent: Int
     public let prefix: MDStringLineRange
     public let checkbox: (MDCheckbox, NSRangeOfLine)?
+    public var plainText: MDStringLineRange
     public init(
         startLine: Int,
         prefix: MDStringLineRange,
         indexInParent: Int,
-        checkbox: (MDCheckbox, NSRangeOfLine)?
+        checkbox: (MDCheckbox, NSRangeOfLine)?,
+    plainText: MDStringLineRange
     ) {
         self.startLine = startLine
         self.prefix = prefix
         self.indexInParent = indexInParent
         self.checkbox = checkbox
+        self.plainText = plainText
     }
 }
 
@@ -118,14 +122,84 @@ public struct MDUnorderedList: MDBlock {
     }
 }
 
-public struct MDOrderedList: MDBlockWithChildren {
+public struct MDOrderedItem: MDBlock {
     public var startLine: Int
-    public var inlineItems: [MDInline]
-    public init(startLine: Int, inlineItems: [MDInline]) {
+    public var index: Int
+    /// item nested level, default is 1
+    public var level: Int
+    public var prefix: MDStringLineRange
+    public var plainText: MDStringLineRange
+    public init(
+        startLine: Int,
+        index: Int,
+        level: Int = 1,
+        prefix: MDStringLineRange,
+    plainText: MDStringLineRange
+    ) {
         self.startLine = startLine
-        self.inlineItems = inlineItems
+        self.prefix = prefix
+        self.level = level
+        self.index = index
+        self.plainText = plainText
     }
 
+}
+
+public struct MDOrderedList: MDBlock {
+    public var startLine: Int
+    public var items: [MDOrderedItem]
+    public init(startLine: Int, items: [MDOrderedItem]) {
+        self.startLine = startLine
+        self.items = items
+    }
+}
+
+public struct MDTableItem: MDBlock {
+    public var startLine: Int
+    public var lineIndex: Int
+    public var columnIndex: Int
+    public var plainText: MDStringLineRange
+    public init(
+        startLine: Int,
+        lineIndex: Int,
+        columnIndex: Int,
+        plainText: MDStringLineRange
+    ) {
+        self.startLine = startLine
+        self.lineIndex = lineIndex
+        self.columnIndex = columnIndex
+        self.plainText = plainText
+    }
+}
+
+public struct MDTableDivider: MDInline {
+    public var startLine: Int
+    public var ranges: [MDStringLineRange]
+    public init(startLine: Int, ranges: [MDStringLineRange]) {
+        self.startLine = startLine
+        self.ranges = ranges
+    }
+}
+
+public struct MDTable: MDBlock {
+    public var startLine: Int
+    public var heads: [MDStringLineRange]
+    public var verticalDividers: MDTableDivider
+    public var horizontalDividers: [MDTableDivider]
+    public var items: [MDTableItem]
+    public init(
+        startLine: Int,
+        heads: [MDStringLineRange],
+        verticalDividers: MDTableDivider,
+        horizontalDividers: [MDTableDivider],
+        items: [MDTableItem]
+    ) {
+        self.startLine = startLine
+        self.heads = heads
+        self.verticalDividers = verticalDividers
+        self.horizontalDividers = horizontalDividers
+        self.items = items
+    }
 }
 
 // MARK: - inline
@@ -278,4 +352,5 @@ public enum MDType {
     case strikeThrough(MDStrikeThrough)
     case orderedList(MDOrderedList)
     case unorderedList(MDUnorderedList)
+    case table(MDTable)
 }

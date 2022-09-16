@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  MarkdownVisitor.swift
 //  
 //
 //  Created by seeu on 2022/9/15.
@@ -65,11 +65,12 @@ internal struct MarkdownVisitor: MarkupWalker {
 
                 // TODO: handle nested blocks
             let symbol = rangeIterator.next(">")
+
                 // skip other characters before plainText
             rangeIterator.next(textStartColumn - 1)
 
             var plainText = child.format()
-            let index = plainText.index(plainText.startIndex, offsetBy: textStartColumn)
+            let index = plainText.index(plainText.startIndex, offsetBy: textStartColumn - 1)
             plainText = String(plainText[index...])
 
             blocks.append((symbol, rangeIterator.next(plainText)))
@@ -134,16 +135,41 @@ internal struct MarkdownVisitor: MarkupWalker {
         self.attrs.append(MDSourceAttribute(plain: strikethrough.format(), range: range(from: sourceRange), sourceRange: sourceRange, mdType: .strikeThrough(mdStrikeThrough)))
     }
 
-        // TODO:
-        //    mutating func visitOrderedList(_ orderedList: OrderedList) {
-        //        guard let sourceRange = orderedList.range else {
-        //            return
-        //        }
-        //        orderedList.listItems.forEach { item in
-        //        }
-        //        let orderedItems: [MDOrderedItems]
-        //        self.attrs.append(MDAttr(plain: orderedList.format(), range: range(from: sourceRange), sourceRange: sourceRange, mdType: .orderedList))
-        //    }
+    mutating func visitOrderedList(_ orderedList: OrderedList) {
+        guard let sourceRange = orderedList.range else {
+            return
+        }
+        var orderedItems: [MDOrderedItem] = []
+
+        var inlineAttrs: [MDSourceAttribute] = []
+
+        orderedList.children.forEach { child in
+            guard let childRange = child.range, let listItem = child as? ListItem else {
+                return
+            }
+
+            let rangeIterator = MDRangeIterator(at: listItem.range!)
+            let index = child.indexInParent
+            let prefixRange = rangeIterator.next("\(index).")
+            rangeIterator.next(" ")
+            var visitor = MarkdownVisitor(lines: self.lines)
+            listItem.children.forEach { child in visitor.visit(child)}
+
+            inlineAttrs.append(contentsOf: visitor.attrs)
+
+            orderedItems.append(MDOrderedItem(startLine: childRange.startLine, index: index, prefix: prefixRange, plainText: rangeIterator.next(listItem.format())))
+        }
+
+        let mdOrderedList = MDOrderedList(startLine: sourceRange.startLine, items: orderedItems)
+
+        self.attrs.append(MDSourceAttribute(
+            plain: orderedList.format(),
+            range: range(from: sourceRange),
+            sourceRange: sourceRange,
+            mdType: .orderedList(mdOrderedList)))
+            // place inline attributes after block attributes to replace block style
+        attrs.append(contentsOf: inlineAttrs)
+    }
 
     mutating func visitUnorderedList(_ unorderedList: UnorderedList) {
         guard let sourceRange = unorderedList.range else {
@@ -177,7 +203,7 @@ internal struct MarkdownVisitor: MarkupWalker {
 
             inlineAttrs.append(contentsOf: visitor.attrs)
 
-            unorderedItems.append(MDUnorderedItem(startLine: startLine + index, prefix: prefixRange, indexInParent: index, checkbox: checkbox))
+            unorderedItems.append(MDUnorderedItem(startLine: startLine + index, prefix: prefixRange, indexInParent: index, checkbox: checkbox, plainText: rangeIterator.next(listItem.format())))
             index += 1
         }
         let mdUnorderedList = MDUnorderedList(startLine: sourceRange.startLine, items: unorderedItems)
@@ -186,8 +212,100 @@ internal struct MarkdownVisitor: MarkupWalker {
         attrs.append(contentsOf: inlineAttrs)
     }
 
-    func visitTable(_ table: Table) {
-            // TODO
+    mutating func visitTable(_ table: Table) {
+        guard let sourceRange = table.range else {
+            return
+        }
+
+        var inlineAttrs: [MDSourceAttribute] = []
+        let bar = "|"
+
+        var line = sourceRange.startLine
+        var horizontalDividers: [MDTableDivider] = []
+        var heads: [MDStringLineRange] = []
+        var items: [MDTableItem] = []
+        var verticalDividerRanges: [MDStringLineRange] = []
+
+        var columnWidths: [Int] = []
+        // first row: header
+        if let headRange = table.head.range {
+            var horizontalDividerRanges: [MDStringLineRange] = []
+            let rangeIterator = MDRangeIterator(at: headRange)
+            horizontalDividerRanges.append((rangeIterator.next(bar)))
+            columnWidths.append(bar.count)
+            table.head.cells.forEach { cell in
+                guard let cellRange = cell.range else { return }
+                let columnWidth = cellRange.upperBound.column - cellRange.lowerBound.column
+                columnWidths.append(columnWidth)
+                    // plainText is the text part of head, range contains left and right string paddings
+                heads.append((cell.plainText, rangeIterator.next(columnWidth)))
+                horizontalDividerRanges.append(rangeIterator.next(bar))
+                columnWidths.append(bar.count)
+            }
+            horizontalDividers.append(MDTableDivider(startLine: line, ranges: horizontalDividerRanges))
+        }
+
+        // second row: divider
+        line += 1
+        let dividerRangeIterator = MDRangeIterator(start: 0)
+        var isBar = true
+        var dividerBarHorizontalRanges: [MDStringLineRange] = []
+        columnWidths.forEach { width in
+            if isBar {
+                dividerBarHorizontalRanges.append(dividerRangeIterator.next(bar))
+            } else {
+                verticalDividerRanges.append(("-", dividerRangeIterator.next(width)))
+            }
+            isBar = !isBar
+        }
+        let verticalDividers = MDTableDivider(startLine: line, ranges: verticalDividerRanges)
+        horizontalDividers.append(MDTableDivider(startLine: line, ranges: dividerBarHorizontalRanges))
+
+        // body
+        line += 1
+        table.body.rows.forEach { row in
+            guard let rowRange = row.range else { return }
+            var horizontalDividerRanges: [MDStringLineRange] = []
+            let rangeIterator = MDRangeIterator(at: rowRange)
+            horizontalDividerRanges.append((rangeIterator.next(bar)))
+
+            var lineIndex = 0
+            var columnIndex = 0
+            row.cells.forEach { cell in
+                guard let cellRange = cell.range else { return }
+                let columnWidth = cellRange.upperBound.column - cellRange.lowerBound.column
+
+                    // plainText is the text part of head, range contains left and right string paddings
+                items.append(MDTableItem(
+                    startLine: cellRange.startLine,
+                    lineIndex: lineIndex,
+                    columnIndex: columnIndex,
+                    plainText: (cell.plainText, rangeIterator.next(columnWidth))))
+                horizontalDividerRanges.append(rangeIterator.next(bar))
+
+                // visit inline attrs
+                var visitor = MarkdownVisitor(lines: self.lines)
+                visitor.visit(cell)
+                inlineAttrs.append(contentsOf: visitor.attrs)
+
+                // update line info
+                if columnIndex + 1 == table.maxColumnCount {
+                    lineIndex += 1
+                    columnIndex = 0
+                } else {
+                    columnIndex += 1
+                }
+            }
+            horizontalDividers.append(MDTableDivider(startLine: line, ranges: horizontalDividerRanges))
+            line += 1
+        }
+
+        let mdTable = MDTable(startLine: sourceRange.startLine, heads: heads, verticalDividers: verticalDividers, horizontalDividers: horizontalDividers, items: items)
+
+        attrs.append(MDSourceAttribute(plain: table.format(), range: range(from: sourceRange), sourceRange: sourceRange, mdType: .table(mdTable)))
+                    // place inline attributes after block attributes to replace block style
+        attrs.append(contentsOf: inlineAttrs)
+
     }
 
         // MARK: - inline
@@ -212,7 +330,6 @@ internal struct MarkdownVisitor: MarkupWalker {
 
         /// italic and bold&italic type
     mutating func visitEmphasis(_ emphasis: Emphasis) {
-            // TODO: should handle bold and italic
         guard let sourceRange = emphasis.range else {
             return
         }

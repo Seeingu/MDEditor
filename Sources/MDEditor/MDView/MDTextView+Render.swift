@@ -56,6 +56,7 @@ extension MDTextView {
         textContentStorage.textStorage?.setAttributes(themeProvider.defaultMarkdownStyles.toAttributes(), range: documentNSRange)
     }
 
+    // FIXME: paragraph frame position is inaccurate
     internal func setParagraphBackgroundColor(in range: NSRange, color: MDColor) {
         guard let textRange = convertRange(from: range) else {
             return
@@ -72,12 +73,13 @@ extension MDTextView {
             backgroundLayer.addSublayer(layer)
             return true
         }
+
     }
 
     /// render markdown content
     internal func updateMarkdownRender(_ string: String) {
         let parser = MDParser(string, lines: lines)
-            // TODO: parse modified part only
+            // TODO: incremental parsing
         parser.parse()
         mdAttrs = parser.attrs
         for attr in mdAttrs {
@@ -96,7 +98,6 @@ extension MDTextView {
                     let blockQuoteStyle = themeProvider.blockQuoteStyle()
                     var line = mdBlockQuote.startLine
                     for block in mdBlockQuote.blocks {
-                        print("block \(block.symbol)")
                         attributes.append((blockQuoteStyle.symbol, makeRange(line: line, range: block.symbol.range)))
                         attributes.append((blockQuoteStyle.plainText, makeRange(line: line, range: block.plainText.range)))
                         line += 1
@@ -152,9 +153,27 @@ extension MDTextView {
                     unorderedList.items.forEach { item in
                         attributes.append((unorderedListStyle.prefix, makeRange(line: item.startLine, range: item.prefix.range)))
                     }
+                case .orderedList(let orderedList):
+                    let orderedListStyle = themeProvider.orderedListStyle()
+                    orderedList.items.forEach { item in
+                        attributes.append((orderedListStyle.index, makeRange(line: item.startLine, range: item.prefix.range)))
+                    }
                 case .lineBreak(let lineBreak):
                     let lineBreakStyle = themeProvider.lineBreakStyle()
                     attributes.append((lineBreakStyle.plainText, makeRange(line: lineBreak.startLine, range: lineBreak.plainText.range)))
+                case .table(let mdTable):
+                    let tableStyle = themeProvider.tableStyle()
+                    mdTable.heads.forEach { head in
+                        attributes.append((tableStyle.head, makeRange(line: mdTable.startLine, range: head.range)))
+                    }
+                    mdTable.horizontalDividers.forEach { line in
+                        line.ranges.forEach { divider in
+                            attributes.append((tableStyle.horizontalDivider, makeRange(line: line.startLine, range: divider.range)))
+                        }
+                    }
+                    mdTable.verticalDividers.ranges.forEach { divider in
+                        attributes.append((tableStyle.verticalDivider, makeRange(line: mdTable.verticalDividers.startLine, range: divider.range)))
+                    }
                 case .text:
                     // text use default style
                     break
