@@ -15,8 +15,8 @@ extension MDTextView {
         }
         textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
         updateLineInfo(textContentStorage.textStorage!.string)
-        relayout()
         updateMarkdownRender(textContentStorage.textStorage!.string)
+        relayout()
     }
 
     private func moveSelection(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool = false) {

@@ -1,5 +1,5 @@
 //
-//  MDMeta.swift
+//  MDStyleMeta.swift
 //  
 //
 //  Created by seeu on 2022/9/12.
@@ -12,7 +12,7 @@ import UIKit
 #endif
 import MDCommon
 
-// MARK: High level markdown style
+// MARK: - High level markdown style
 public struct SupportParagraphStyle {
     public var lineHeight: Float
     public var backgroundColor: MDColor?
@@ -39,14 +39,22 @@ public struct MDSupportStyle {
         style.font = style.font.withSize(size)
         return style
     }
+    func withFontSize(_ size: MDDefaultFontSize) -> Self {
+        return self.withFontSize(size.rawValue)
+    }
     func withItalics() -> Self {
         var style = self
-        style.font = style.font.italics()
+        style.font = style.font.withItalics()
+        return style
+    }
+    func withBold() -> Self {
+        var style = self
+        style.font = style.font.withBold()
         return style
     }
 }
 
-// MARK: MD Style Structure
+// MARK: - Block
 
 public struct MDHeadingStyles {
     public var level: MDSupportStyle
@@ -138,6 +146,32 @@ public struct MDOrderedListStyles {
     init(default style: MDSupportStyle) {
         index = style
         plainText = style
+    }
+}
+
+public struct MDTableStyles {
+    public var head: MDSupportStyle
+    public var item: MDSupportStyle
+    public var verticalDivider: MDSupportStyle
+    public var horizontalDivider: MDSupportStyle
+
+    init(
+        head: MDSupportStyle,
+        item: MDSupportStyle,
+        verticalDivider: MDSupportStyle,
+        horizontalDivider: MDSupportStyle
+    ) {
+        self.head = head
+        self.item = item
+        self.verticalDivider = verticalDivider
+        self.horizontalDivider = horizontalDivider
+    }
+
+    init(default style: MDSupportStyle) {
+        head = style
+        item = style
+        verticalDivider = style
+        horizontalDivider = style
     }
 }
 

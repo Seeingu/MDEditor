@@ -45,6 +45,20 @@ open class ThemeProvider {
         return MDUnorderedListStyles(default: defaultMarkdownStyles)
     }
 
+    public func orderedListStyle() -> MDOrderedListStyles {
+        if let orderedListStyles = markdownThemeDelegate?.loadOrderedListStyles(defaultMarkdownStyles) {
+            return orderedListStyles
+        }
+        return MDOrderedListStyles(default: defaultMarkdownStyles)
+    }
+
+    public func tableStyle() -> MDTableStyles {
+        if let tableStyels = markdownThemeDelegate?.loadTableStyles(defaultMarkdownStyles) {
+            return tableStyels
+        }
+        return MDTableStyles(default: defaultMarkdownStyles)
+    }
+
     public func lineBreakStyle() -> MDLineBreakStyles {
         if let lineBreakStyles = markdownThemeDelegate?.loadLineBreakStyles(defaultMarkdownStyles) {
             return lineBreakStyles

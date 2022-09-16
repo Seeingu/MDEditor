@@ -19,7 +19,7 @@ extension MDFont {
         return MDFont(descriptor: fd, size: pointSize)!
     }
 
-    public func italics() -> MDFont {
+    public func withItalics() -> MDFont {
         if fontDescriptor.symbolicTraits.contains(.bold) {
             return withTraits([.italic, .bold])
         }
@@ -45,11 +45,15 @@ extension MDFont {
         return MDFont(descriptor: fd!, size: pointSize)
     }
 
-    public func italics() -> MDFont {
+    public func withItalics() -> MDFont {
         if fontDescriptor.symbolicTraits.contains(.traitBold) {
             return withTraits([.traitBold, .traitItalic])
         }
         return withTraits(.traitItalic)
+    }
+
+    public func withBold() -> MDFont {
+        return withTraits(.traitBold)
     }
 }
 

@@ -13,6 +13,7 @@ import UIKit
 
 import MDCommon
 
+/// internal theme builder
 internal class ThemeBuilder {
     static let defaultStyle = ThemeBuilder()
         .font(MDFont.monospacedSystemFont(ofSize: 20, weight: .regular))

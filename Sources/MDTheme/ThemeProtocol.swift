@@ -25,6 +25,7 @@ public protocol MarkdownThemeDelegate: AnyObject {
     func loadEmphasisStyles(_ defaultStyle: MDSupportStyle, emphasisType: EmphasisType) -> MDEmphasisStyles
     func loadUnorderedListStyles(_ defaultStyle: MDSupportStyle) -> MDUnorderedListStyles
     func loadOrderedListStyles(_ defaultStyle: MDSupportStyle) -> MDOrderedListStyles
+    func loadTableStyles(_ defaultStyle: MDSupportStyle) -> MDTableStyles
     func loadLinkStyles(_ defaultStyle: MDSupportStyle) -> MDLinkStyles
     func loadImageStyles(_ defaultStyle: MDSupportStyle) -> MDImageStyles
     func loadStrikeThroughStyles(_ defaultStyle: MDSupportStyle) -> MDStrikeThroughStyles
