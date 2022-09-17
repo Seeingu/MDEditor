@@ -14,6 +14,9 @@
 		8848862A28C83E8800BBA02F /* MDEditorDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848862928C83E8800BBA02F /* MDEditorDemoTests.swift */; };
 		8848863428C83E8800BBA02F /* MDEditorDemoUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848863328C83E8800BBA02F /* MDEditorDemoUITests.swift */; };
 		8848863628C83E8800BBA02F /* MDEditorDemoUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848863528C83E8800BBA02F /* MDEditorDemoUITestsLaunchTests.swift */; };
+		885F791328D5BA5C00C02E9C /* MarkdownPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */; };
+		885F791528D5BA8900C02E9C /* MDEditorPreview in Frameworks */ = {isa = PBXBuildFile; productRef = 885F791428D5BA8900C02E9C /* MDEditorPreview */; };
+		885F791728D5BD5E00C02E9C /* MarkdownEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */; };
 		88B1C4DA28CC949500409D6B /* MDEditor in Frameworks */ = {isa = PBXBuildFile; productRef = 88B1C4D928CC949500409D6B /* MDEditor */; };
 /* End PBXBuildFile section */
 
@@ -45,6 +48,8 @@
 		8848863528C83E8800BBA02F /* MDEditorDemoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		8848866028C89BE400BBA02F /* MDEditorDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDEditorDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8848866128C89BE400BBA02F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreview.swift; sourceTree = "<group>"; };
+		885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
 		88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88B1C4D828CC946F00409D6B /* MDEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = MDEditor; path = ..; sourceTree = "<group>"; };
@@ -56,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88B1C4DA28CC949500409D6B /* MDEditor in Frameworks */,
+				885F791528D5BA8900C02E9C /* MDEditorPreview in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +105,8 @@
 				8848861B28C83E8800BBA02F /* Assets.xcassets */,
 				8848862028C83E8800BBA02F /* MDEditorDemo.entitlements */,
 				8848861D28C83E8800BBA02F /* Preview Content */,
+				885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */,
+				885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */,
 			);
 			path = MDEditorDemo;
 			sourceTree = "<group>";
@@ -153,6 +161,7 @@
 			name = MDEditorDemo;
 			packageProductDependencies = (
 				88B1C4D928CC949500409D6B /* MDEditor */,
+				885F791428D5BA8900C02E9C /* MDEditorPreview */,
 			);
 			productName = MDEditorDemo;
 			productReference = 8848866028C89BE400BBA02F /* MDEditorDemo.app */;
@@ -268,7 +277,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				885F791728D5BD5E00C02E9C /* MarkdownEditorView.swift in Sources */,
 				8848861A28C83E8500BBA02F /* ContentView.swift in Sources */,
+				885F791328D5BA5C00C02E9C /* MarkdownPreview.swift in Sources */,
 				8848861828C83E8500BBA02F /* MDEditorDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,7 +451,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cc.shiningstar.MDEditorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -474,7 +485,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = cc.shiningstar.MDEditorDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -601,6 +612,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		885F791428D5BA8900C02E9C /* MDEditorPreview */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = MDEditorPreview;
+		};
 		88B1C4D928CC949500409D6B /* MDEditor */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = MDEditor;
