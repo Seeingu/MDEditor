@@ -71,6 +71,12 @@ extension MDTextView {
 
     }
 
+    internal func updateEditorRender() {
+        themeProvider.reloadEditorStyles()
+        viewLayer.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
+        relayout()
+    }
+
     /// render markdown content
     internal func updateMarkdownRender(_ string: String) {
         let parser = MDParser(string, lines: lines)

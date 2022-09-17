@@ -49,7 +49,6 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
         textDocumentView.setString(model.text)
         textDocumentView.isEditable = model.isEditable
         textDocumentView.themeProvider = model.themeProvider
-        model.themeProvider.reloadEditorStyles()
     }
 
     public override func loadView() {

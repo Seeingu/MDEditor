@@ -246,6 +246,7 @@ extension MDTextView {
         }
         set {
             stateModel.themeProvider = newValue
+            updateEditorRender()
             updateMarkdownRender(string)
         }
     }
@@ -313,12 +314,25 @@ extension MDTextView {
         }
     }
 
+#if os(macOS)
+    internal var viewLayer: CALayer {
+        get {
+           layer!
+        }
+    }
+#else
+    internal var viewLayer: CALayer {
+        get {
+            layer
+        }
+
+    }
+
+#endif
+
     internal func initLayers() {
         fragmentLayerMap = .weakToWeakObjects()
-        #if os(macOS)
-        guard let layer = layer else { return }
-        #endif
-        layer.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
+        viewLayer.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
 
         selectionLayer = MDBaseLayer()
         contentLayer = MDBaseLayer()
@@ -329,10 +343,10 @@ extension MDTextView {
         backgroundLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
         #endif
 
-        layer.addSublayer(backgroundLayer)
-        layer.addSublayer(contentLayer)
+        viewLayer.addSublayer(backgroundLayer)
+        viewLayer.addSublayer(contentLayer)
             // set selection layer on top
-        layer.addSublayer(selectionLayer)
+        viewLayer.addSublayer(selectionLayer)
     }
 
     private func restoreCaretLocation(action: () -> Void) {

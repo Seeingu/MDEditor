@@ -15,7 +15,7 @@ public protocol EditorThemeDelegate: AnyObject {
 
 /// markdown content setting
 public protocol MarkdownThemeDelegate: AnyObject {
-    func loadDefaultStyles() -> MDSupportStyle
+    func loadDefaultStyles(colorScheme: MDColorScheme) -> MDSupportStyle
     func loadHeadingStyles(_ defaultStyle: MDSupportStyle, level: Int) -> MDHeadingStyles
     func loadCodeBlockStyles(_ defaultStyle: MDSupportStyle) -> MDCodeBlockStyles
     func loadInlineCodeStyles(_ defaultStyle: MDSupportStyle) -> MDInlineCodeStyles

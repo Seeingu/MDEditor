@@ -20,6 +20,12 @@ internal class ThemeBuilder {
         .paragraph(lineHeight: 1.1)
         .build()
 
+    static let defaultDarkStyle = ThemeBuilder()
+        .font(MDFont.monospacedSystemFont(ofSize: 20, weight: .regular))
+        .foregroundColor(.white)
+        .paragraph(lineHeight: 1.1)
+        .build()
+
     private var style = MDSupportStyle()
 
     init() {}

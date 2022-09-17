@@ -8,17 +8,23 @@
 import SwiftUI
 import MDEditor
 import MDTheme
+import MDCommon
 
 class CustomThemeProvider: ThemeProvider, EditorThemeDelegate, MarkdownThemeDelegate {
-    override init() {
-        super.init()
+
+    override init(_ colorScheme: MDColorScheme = .light) {
+        super.init(colorScheme)
         self.editorThemeDelegate = self
         self.markdownThemeDelegate = self
     }
 
     func loadEditorStyles(_ defaultStyles: EditorStyles) -> EditorStyles {
         var style = defaultStyles
-        style.caretColor = .blue
+        if colorScheme == .dark {
+            style.editorBackground = MDColor(hue: 215 / 255, saturation: 0.15, brightness: 0.22, alpha: 1.0)
+        } else {
+            style.caretColor = .blue
+        }
         style.padding = 20
         return style
     }
@@ -66,13 +72,20 @@ struct ContentView: View {
 
     """
 
+    @Environment(\.colorScheme) var colorScheme
+
     @State private var isEditable: Bool = true
-    @State var customTheme = CustomThemeProvider()
+
+    var customTheme: ThemeProvider {
+        let mdColorScheme: MDColorScheme = colorScheme == .dark ? .dark : .light
+        return CustomThemeProvider(.dark)
+    }
 
     var body: some View {
         VStack {
             MDEditor(text: $text, isEditable: $isEditable)
                 .theme(provider: customTheme)
+
         }
     }
 }
