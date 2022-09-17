@@ -70,7 +70,7 @@ struct ContentView: View {
     @State var customTheme = CustomThemeProvider()
 
     var body: some View {
-        ZStack {
+        VStack {
             MDEditor(text: $text, isEditable: $isEditable)
                 .theme(provider: customTheme)
         }

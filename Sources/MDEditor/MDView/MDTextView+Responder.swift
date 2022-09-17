@@ -9,15 +9,6 @@ import MDCommon
 
 extension MDTextView {
         // MARK: - common
-    func replaceCharacters(in range: NSTextRange, with string: String) {
-        if !isEditable {
-            return
-        }
-        textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
-        updateLineInfo(textContentStorage.textStorage!.string)
-        updateMarkdownRender(textContentStorage.textStorage!.string)
-        relayout()
-    }
 
     private func moveSelection(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool = false) {
         updateTextSelection(direction: direction, destination: destination, extending: true, confined: confined)
@@ -35,27 +26,6 @@ extension MDTextView {
 
         updateSelectionHighlights()
         scrollToSelectionCaret()
-    }
-
-    private func delete(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, allowsDecomposition: Bool) {
-        let textRanges = textLayoutManager.textSelections.flatMap { textSelection -> [NSTextRange] in
-            return textLayoutManager.textSelectionNavigation.deletionRanges(
-                for: textSelection,
-                direction: direction,
-                destination: destination,
-                allowsDecomposition: allowsDecomposition
-            )
-        }
-
-        if textRanges.isEmpty {
-            return
-        }
-
-        textContentStorage.performEditingTransaction {
-            for textRange in textRanges {
-                replaceCharacters(in: textRange, with: "")
-            }
-        }
     }
 
     private func moveCaret(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool) {
@@ -87,6 +57,11 @@ extension MDTextView {
             selecting: true,
             bounds: .zero)
 
+    }
+    internal func changeCaretPosition(in range: NSTextRange) {
+        textLayoutManager.textSelections = [
+            NSTextSelection(range: range, affinity: .downstream, granularity: .character)
+        ]
     }
 
     private func scrollToSelectionCaret() {

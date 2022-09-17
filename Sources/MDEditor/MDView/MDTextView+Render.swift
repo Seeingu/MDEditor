@@ -51,11 +51,6 @@ extension MDTextView {
         #endif
     }
 
-    internal func setDefaultAttributes() {
-        let documentNSRange = convertRange(from: textContentStorage.documentRange)
-        textContentStorage.textStorage?.setAttributes(themeProvider.defaultMarkdownStyles.toAttributes(), range: documentNSRange)
-    }
-
     // FIXME: paragraph frame position is inaccurate
     internal func setParagraphBackgroundColor(in range: NSRange, color: MDColor) {
         guard let textRange = convertRange(from: range) else {

@@ -8,18 +8,51 @@
 // MARK: - Common
 
 extension MDTextView {
-    func insertString(_ string: String) {
+    internal func replaceCharacters(in range: NSTextRange, with string: String) {
+        if !isEditable {
+            return
+        }
+        textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
+        let newString = textContentStorage.textStorage!.string
+        self.setString(newString)
+        textViewDelegate?.onTextChange(string)
+
+        relayout()
+    }
+
+    internal func insertString(_ string: String) {
         for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
             replaceCharacters(in: textRange, with: string)
         }
     }
 
-    func insertString(_ string: String, replacementRange: NSRange) {
+    internal func insertString(_ string: String, replacementRange: NSRange) {
         textContentStorage?.performEditingTransaction {
             if let textRange = convertRange(from: replacementRange) {
                 replaceCharacters(in: textRange, with: string)
             } else {
                 insertText(string)
+            }
+        }
+    }
+
+    internal func delete(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, allowsDecomposition: Bool) {
+        let textRanges = textLayoutManager.textSelections.flatMap { textSelection -> [NSTextRange] in
+            return textLayoutManager.textSelectionNavigation.deletionRanges(
+                for: textSelection,
+                direction: direction,
+                destination: destination,
+                allowsDecomposition: allowsDecomposition
+            )
+        }
+
+        if textRanges.isEmpty {
+            return
+        }
+
+        textContentStorage.performEditingTransaction {
+            for textRange in textRanges {
+                replaceCharacters(in: textRange, with: "")
             }
         }
     }
@@ -126,7 +159,7 @@ extension MDTextView: UIKeyInput {
     }
 
     func deleteBackward() {
-            //
+        delete(direction: .backward, destination: .character, allowsDecomposition: false)
     }
 
 }

@@ -17,55 +17,53 @@ typealias MDScrollView = UIScrollView
 import SwiftUI
 import MDTheme
 
-public class MDTextViewController: MDViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate, MDTextViewDelegate {
+public class MDTextViewController: MDViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate {
+    var delegate: MDTextViewControllDelegate?
     private var textContentStorage: NSTextContentStorage
     private var textLayoutManager: NSTextLayoutManager
     private var textDocumentView: MDTextView!
+    private var model: MDModel
 
-    public var text: String {
-        didSet {
-            textDocumentView.string = text
-        }
-    }
-    public var isEditable: Bool {
-        didSet {
-            textDocumentView.isEditable = isEditable
-        }
-    }
-    public var themeProvider: ThemeProvider {
-        didSet {
-            textDocumentView.themeProvider = themeProvider
-            themeProvider.reloadEditorStyles()
-        }
-    }
     required init?(coder: NSCoder) {
         fatalError()
     }
 
-    public init(text: String, isEditable: Bool, themeProvider: ThemeProvider) {
-        textLayoutManager = NSTextLayoutManager()
+//    public init(text: Binding<String>, isEditable: Bool, themeProvider: ThemeProvider) {
+//        textLayoutManager = NSTextLayoutManager()
+//        textContentStorage = NSTextContentStorage()
+//        self.text = text
+//        self.isEditable = isEditable
+//        self.themeProvider = themeProvider
+//        super.init(nibName: nil, bundle: nil)
+//    }
+
+    init(model: MDModel) {
+                textLayoutManager = NSTextLayoutManager()
         textContentStorage = NSTextContentStorage()
-        self.text = text
-        self.isEditable = isEditable
-        self.themeProvider = themeProvider
+
+        self.model = model
         super.init(nibName: nil, bundle: nil)
     }
 
-    convenience init(model: MDModel) {
-        self.init(text: model.text, isEditable: model.isEditable, themeProvider: model.themeProvider)
+    func updateView(model: MDModel) {
+        textDocumentView.setString(model.text)
+        textDocumentView.isEditable = model.isEditable
+        textDocumentView.themeProvider = model.themeProvider
+        model.themeProvider.reloadEditorStyles()
     }
 
     public override func loadView() {
         let textView = MDTextView(frame: .zero)
         textView.textContentStorage = textContentStorage
         textView.textLayoutManager = textLayoutManager
-        textView.isEditable = isEditable
-        textView.string = text
+        textView.isEditable = model.isEditable
+        textView.textViewDelegate = self
 
         textContentStorage.addTextLayoutManager(textLayoutManager)
 
         let textContainer = NSTextContainer(size: .zero)
         textLayoutManager.textContainer = textContainer
+        textView.setString(model.text)
 
         textContainer.widthTracksTextView = true
         textContainer.heightTracksTextView = false
@@ -102,4 +100,15 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
         super.viewDidLoad()
     }
 
+}
+
+extension MDTextViewController: MDTextViewDelegate {
+    public func onTextChange(_ text: String) {
+        model.textChangeAction?(text)
+        self.delegate?.textViewDidChange(textDocumentView)
+    }
+}
+
+protocol MDTextViewControllDelegate {
+    func textViewDidChange(_ textView: MDTextView)
 }
