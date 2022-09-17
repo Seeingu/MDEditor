@@ -8,9 +8,13 @@
 import Foundation
 
 extension MDTextView {
-    #if os(macOS)
+
     var isDarkMode: Bool {
+#if os(macOS)
         effectiveAppearance.name == .darkAqua
+#else
+        self.traitCollection.userInterfaceStyle == .dark
+#endif
     }
-    #endif
+
 }

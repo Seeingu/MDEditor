@@ -12,49 +12,9 @@ import MDCommon
 import AppKit
 
 class MDTextView: NSView {
-    internal var lines: [MDSourceLineInfo] = []
-    var textLayoutManager: NSTextLayoutManager! {
-        didSet {
-            if let tlm = textLayoutManager {
-                tlm.delegate = self
-                tlm.textViewportLayoutController.delegate = self
-            }
-        }
-    }
-
-    var textContentStorage: NSTextContentStorage!
-
-        // MARK: - style config
-
-    var isEditable: Bool = true
-
-    internal var mdAttrs: [MDSourceAttribute] = []
-    var themeProvider: ThemeProvider = ThemeProvider.default {
-        didSet {
-            updateMarkdownRender(string)
-        }
-    }
-
-    internal var padding: CGFloat {
-        CGFloat(themeProvider.editorStyles.padding)
-    }
-
-        // MARK: - attributeedString processing, markdown rendering
-    var string: String = "" {
-        didSet {
-            textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
-            setDefaultAttributes()
-            updateLineInfo(string)
-            updateMarkdownRender(string)
-        }
-    }
+    internal var stateModel = MDTextViewStateModel()
 
     private var boundsDidChangeObserver: NSObjectProtocol?
-
-    internal var contentLayer: CALayer! = nil
-    internal var selectionLayer: CALayer! = nil
-    internal var backgroundLayer: CALayer! = nil
-    internal var fragmentLayerMap: NSMapTable<NSTextLayoutFragment, CALayer>
 
         /// use left top coordination
     override var isFlipped: Bool { true }
@@ -65,24 +25,11 @@ class MDTextView: NSView {
     }
 
     override init(frame: CGRect) {
-        fragmentLayerMap = .weakToWeakObjects()
         super.init(frame: frame)
         wantsLayer = true
         autoresizingMask = [.width, .height]
 
-        layer?.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
-
-        selectionLayer = MDBaseLayer()
-        selectionLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-        contentLayer = MDBaseLayer()
-        contentLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-        backgroundLayer = MDBaseLayer()
-        backgroundLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
-
-        layer?.addSublayer(backgroundLayer)
-        layer?.addSublayer(contentLayer)
-            // set selection layer on top
-        layer?.addSublayer(selectionLayer)
+        initLayers()
     }
 
     deinit {
@@ -190,39 +137,14 @@ class MDTextView: NSView {
 import UIKit
 
 class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
-    internal var lines: [MDSourceLineInfo] = []
+    internal var stateModel = MDTextViewStateModel()
 
     let selectionColor = UIColor.systemBlue
     let caretColor = UIColor.tintColor
 
-    var isEditable: Bool = true
-
     // UIEditMenuInteraction only available in iOS >16
     // TODO: update type identifier after iOS 16 released
     internal var editMenuInteraction: Any!
-
-    var string: String = "" {
-        didSet {
-            textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
-            setDefaultAttributes()
-            updateMarkdownRender(string)
-        }
-    }
-
-    internal var contentLayer: CALayer! = nil
-    internal var selectionLayer: CALayer! = nil
-    internal var backgroundLayer: CALayer! = nil
-    internal var fragmentLayerMap: NSMapTable<NSTextLayoutFragment, CALayer>
-    internal var padding: CGFloat {
-        CGFloat(themeProvider.editorStyles.padding)
-    }
-
-    internal var mdAttrs: [MDSourceAttribute] = []
-    var themeProvider: ThemeProvider = ThemeProvider.default {
-        didSet {
-            updateMarkdownRender(string)
-        }
-    }
 
         // MARK: - NSTextViewportLayoutControllerDelegate
 
@@ -255,27 +177,10 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
         }
     }
 
-    var textLayoutManager: NSTextLayoutManager! {
-        didSet {
-            if let tlm = textLayoutManager {
-                tlm.delegate = self
-                tlm.textViewportLayoutController.delegate = self
-            }
-        }
-    }
-    var textContentStorage: NSTextContentStorage!
-
     override init(frame: CGRect) {
-        fragmentLayerMap = .weakToWeakObjects()
 
         super.init(frame: frame)
-        layer.backgroundColor = UIColor.white.cgColor
-        selectionLayer = MDBaseLayer()
-        contentLayer = MDBaseLayer()
-        backgroundLayer = MDBaseLayer()
-        layer.addSublayer(selectionLayer)
-        layer.addSublayer(contentLayer)
-        layer.addSublayer(backgroundLayer)
+        initLayers()
 
         translatesAutoresizingMaskIntoConstraints = false
 
@@ -295,3 +200,156 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
 }
 
 #endif
+
+extension MDTextView {
+    internal var lines: [MDSourceLineInfo] {
+        get {
+            stateModel.lines
+        }
+        set {
+            stateModel.lines = newValue
+        }
+    }
+
+    public var textViewDelegate: MDTextViewDelegate? {
+        set {
+            stateModel.textViewDelegate = newValue
+        }
+        get {
+            stateModel.textViewDelegate
+        }
+    }
+
+    internal var textLayoutManager: NSTextLayoutManager! {
+        set {
+            stateModel.textLayoutManager = newValue
+            stateModel.textLayoutManager.delegate = self
+            stateModel.textLayoutManager.textViewportLayoutController.delegate = self
+        }
+        get {
+            stateModel.textLayoutManager
+        }
+    }
+
+    internal var textContentStorage: NSTextContentStorage! {
+        get {
+            stateModel.textContentStorage
+        }
+        set {
+            stateModel.textContentStorage = newValue
+        }
+    }
+
+    var themeProvider: ThemeProvider {
+        get {
+            stateModel.themeProvider
+        }
+        set {
+            stateModel.themeProvider = newValue
+            updateMarkdownRender(string)
+        }
+    }
+
+    internal var padding: CGFloat {
+        get {
+            CGFloat(themeProvider.editorStyles.padding)
+        }
+    }
+
+    var string: String {
+        get {
+            textContentStorage.textStorage?.string ?? ""
+        }
+    }
+
+    internal var contentLayer: CALayer! {
+        get {
+            stateModel.contentLayer
+        }
+        set {
+            stateModel.contentLayer = newValue
+        }
+    }
+    internal var selectionLayer: CALayer! {
+        get {
+            stateModel.selectionLayer
+        }
+        set {
+            stateModel.selectionLayer = newValue
+        }
+    }
+    internal var backgroundLayer: CALayer! {
+        get {
+            stateModel.backgroundLayer
+        }
+        set {
+            stateModel.backgroundLayer = newValue
+        }
+    }
+    internal var fragmentLayerMap: NSMapTable<NSTextLayoutFragment, CALayer>! {
+        get {
+            stateModel.fragmentLayerMap
+        }
+        set {
+            stateModel.fragmentLayerMap = newValue
+        }
+    }
+
+    public var isEditable: Bool {
+        get {
+            stateModel.isEditable
+        }
+        set {
+            stateModel.isEditable = newValue
+        }
+    }
+
+    internal var mdAttrs: [MDSourceAttribute] {
+        get {
+            stateModel.mdAttrs
+        }
+        set {
+            stateModel.mdAttrs = newValue
+        }
+    }
+
+    internal func initLayers() {
+        fragmentLayerMap = .weakToWeakObjects()
+        #if os(macOS)
+        guard let layer = layer else { return }
+        #endif
+        layer.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
+
+        selectionLayer = MDBaseLayer()
+        contentLayer = MDBaseLayer()
+        backgroundLayer = MDBaseLayer()
+        #if os(macOS)
+        selectionLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        contentLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        backgroundLayer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        #endif
+
+        layer.addSublayer(backgroundLayer)
+        layer.addSublayer(contentLayer)
+            // set selection layer on top
+        layer.addSublayer(selectionLayer)
+    }
+
+    private func restoreCaretLocation(action: () -> Void) {
+        let location = textLayoutManager.firstSelection?.textRanges.first?.location
+
+        action()
+        changeCaretPosition(in: NSTextRange(location: location ?? textLayoutManager.documentRange.location))
+    }
+
+    public func setString(_ string: String) {
+        restoreCaretLocation {
+            textContentStorage.textStorage?.setAttributedString(NSAttributedString(string: string))
+        }
+
+        updateLineInfo(string)
+        updateMarkdownRender(string)
+        relayout()
+    }
+
+}

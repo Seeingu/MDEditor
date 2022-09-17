@@ -5,11 +5,13 @@
 //  Created by seeu on 2022/9/11.
 //
 
-import Combine
+import SwiftUI
 import MDTheme
 
-class MDModel: ObservableObject {
-    @Published var text: String = ""
-    @Published var isEditable: Bool = true
-    @Published internal var themeProvider: ThemeProvider = ThemeProvider()
+class MDModel {
+    var text: String = ""
+    var isEditable: Bool = true
+    var themeProvider: ThemeProvider = ThemeProvider()
+
+    var textChangeAction: ((_ text: String) -> Void)?
 }
