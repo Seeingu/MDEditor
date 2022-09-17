@@ -17,10 +17,18 @@ open class ThemeProvider {
 
     public var defaultMarkdownStyles: MDSupportStyle
 
-    public init() {
-        self.editorStyles = EditorStyles.default
+    public var colorScheme: MDColorScheme
 
-        self.defaultMarkdownStyles = ThemeBuilder.defaultStyle
+    public init(_ colorScheme: MDColorScheme = .light) {
+        self.colorScheme = colorScheme
+        if colorScheme == .dark {
+            self.editorStyles = EditorStyles.darkDefault
+            self.defaultMarkdownStyles = ThemeBuilder.defaultDarkStyle
+
+        } else {
+            self.editorStyles = EditorStyles.default
+            self.defaultMarkdownStyles = ThemeBuilder.defaultStyle
+        }
     }
 
     public func headingStyle(level: Int) -> MDHeadingStyles {
@@ -116,7 +124,7 @@ open class ThemeProvider {
             self.editorStyles = editorTheme.loadEditorStyles(self.editorStyles)
         }
         if let markdownTheme = markdownThemeDelegate {
-            self.defaultMarkdownStyles = markdownTheme.loadDefaultStyles()
+            self.defaultMarkdownStyles = markdownTheme.loadDefaultStyles(colorScheme: colorScheme)
         }
     }
 

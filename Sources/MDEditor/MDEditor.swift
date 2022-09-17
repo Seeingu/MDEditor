@@ -16,14 +16,12 @@ public struct MDEditor: NSViewControllerRepresentable {
 
    private var model = MDModel()
     @Binding private var text: String
-
     @Binding private var isEditable: Bool
     public typealias NSViewControllerType = MDTextViewController
 
     public init(text: Binding<String>, isEditable: Binding<Bool>, onTextChange: ((_ text: String) -> Void)? = nil) {
         self._text = text
         self._isEditable = isEditable
-        model = MDModel()
         model.text = text.wrappedValue
 
         model.isEditable = isEditable.wrappedValue
@@ -76,15 +74,16 @@ public struct MDEditor: UIViewControllerRepresentable {
 }
 #endif
 
+// MARK: - SwiftUI View extension
 extension MDEditor {
     public func theme(provider: ThemeProvider) -> some View {
         self.model.themeProvider = provider
 
         return self
     }
-
 }
 
+// MARK: - Coordinator
 extension MDEditor {
     public class Coordinator: NSObject, MDTextViewControllDelegate {
         var parent: MDEditor

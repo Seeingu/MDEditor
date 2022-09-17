@@ -10,6 +10,7 @@ import CoreGraphics
 
 // MARK: - Editor
 public extension EditorThemeDelegate {
+
     func loadEditorStyles(_ defaultStyles: EditorStyles) -> EditorStyles {
         defaultStyles
     }
@@ -21,6 +22,7 @@ public struct EditorStyles {
     public var editorBackground: MDColor
     public var padding: Float
 
+    static let darkDefault = EditorStyles(selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .white, editorBackground: .black, padding: 5.0)
     static let `default` = EditorStyles(selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .black, editorBackground: .white, padding: 5.0)
 }
 
@@ -34,8 +36,12 @@ enum MDDefaultFontSize: CGFloat {
 // MARK: - Markdown
 // TODO: light/dark theme
 public extension MarkdownThemeDelegate {
-    func loadDefaultStyles() -> MDSupportStyle {
-        ThemeBuilder.defaultStyle
+    func loadDefaultStyles(colorScheme: MDColorScheme) -> MDSupportStyle {
+        if colorScheme == .dark {
+            return ThemeBuilder.defaultDarkStyle
+        } else {
+            return ThemeBuilder.defaultStyle
+        }
     }
 
     func loadHeadingStyles(_ defaultStyle: MDSupportStyle, level: Int) -> MDHeadingStyles {
