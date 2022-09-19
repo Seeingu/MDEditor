@@ -12,6 +12,7 @@ import MDCommon
 import AppKit
 
 class MDTextView: NSView {
+    internal var textFinder: NSTextFinder!
     internal var stateModel = MDTextViewStateModel()
 
     private var boundsDidChangeObserver: NSObjectProtocol?
@@ -247,7 +248,7 @@ extension MDTextView {
         set {
             stateModel.themeProvider = newValue
             updateEditorRender()
-            updateMarkdownRender(string)
+            updateMarkdownRender(mdString)
         }
     }
 
@@ -257,7 +258,7 @@ extension MDTextView {
         }
     }
 
-    var string: String {
+    var mdString: String {
         get {
             textContentStorage.textStorage?.string ?? ""
         }
@@ -350,7 +351,7 @@ extension MDTextView {
     }
 
     private func restoreCaretLocation(action: () -> Void) {
-        let location = textLayoutManager.firstSelection?.textRanges.first?.location
+        let location = textLayoutManager.firstSelection?.firstTextRange?.location
 
         action()
         changeCaretPosition(in: NSTextRange(location: location ?? textLayoutManager.documentRange.location))

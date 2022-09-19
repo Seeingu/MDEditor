@@ -25,7 +25,7 @@ extension MDTextView {
         }
 
         updateSelectionHighlights()
-        scrollToSelectionCaret()
+        scrollToSelection()
     }
 
     private func moveCaret(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, confined: Bool) {
@@ -64,7 +64,7 @@ extension MDTextView {
         ]
     }
 
-    private func scrollToSelectionCaret() {
+    internal func scrollToSelection() {
         guard let selection = textLayoutManager.firstSelection, let textRange = selection.textRanges.first else {
             return
         }
@@ -208,6 +208,9 @@ extension MDTextView {
                     return
                 case "x":
                     cutAction()
+                    return
+                case "f":
+                    showFinderBar()
                     return
                 default:
                     break

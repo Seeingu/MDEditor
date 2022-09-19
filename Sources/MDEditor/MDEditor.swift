@@ -93,7 +93,7 @@ extension MDEditor {
         }
 
         func textViewDidChange(_ textView: MDTextView) {
-            parent.text = textView.string
+            parent.text = textView.mdString
         }
 
     }

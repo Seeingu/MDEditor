@@ -12,7 +12,6 @@ let package = Package(
             name: "MDEditor",
             targets: ["MDEditor"]),
         .library(name: "MDEditorPreview", targets: ["MDEditorPreview"])
-
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.

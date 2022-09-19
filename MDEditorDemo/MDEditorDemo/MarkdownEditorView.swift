@@ -80,7 +80,7 @@ struct MarkdownEditorView: View {
 
     var customTheme: ThemeProvider {
         let mdColorScheme: MDColorScheme = colorScheme == .dark ? .dark : .light
-        return CustomThemeProvider(.dark)
+        return CustomThemeProvider(mdColorScheme)
     }
 
     var body: some View {

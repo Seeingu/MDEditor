@@ -1,5 +1,5 @@
 //
-//  MDTextView+NSTextInputClient.swift
+//  MDTextView+Input.swift
 //  
 //
 //  Created by seeu on 2022/9/7.
@@ -8,7 +8,7 @@
 // MARK: - Common
 
 extension MDTextView {
-    internal func replaceCharacters(in range: NSTextRange, with string: String) {
+      internal func replaceCharacters(in range: NSTextRange, with string: String) {
         if !isEditable {
             return
         }
@@ -71,17 +71,7 @@ extension MDTextView: NSTextInputClient {
     }
 
     func firstRect(forCharacterRange range: NSRange, actualRange: NSRangePointer?) -> NSRect {
-        guard let textRange = convertRange(from: range) else {
-            return .zero
-        }
-
-        var rect: NSRect = .zero
-        textLayoutManager.enumerateTextSegments(in: textRange, type: .selection, options: .rangeNotRequired) { _, textSegmentFrame, _, _ in
-            rect = window!.convertToScreen(convert(textSegmentFrame, to: nil))
-            return false
-        }
-
-        return rect
+        return findRects(forCharacterRange: range).first ?? .zero
     }
 
     func characterIndex(for point: NSPoint) -> Int {
