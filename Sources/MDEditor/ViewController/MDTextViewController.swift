@@ -8,11 +8,11 @@
 #if os(macOS)
 import AppKit
 public typealias MDViewController = NSViewController
-typealias MDScrollView = NSScrollView
+
 #else
 import UIKit
 public typealias MDViewController = UIViewController
-typealias MDScrollView = UIScrollView
+
 #endif
 import SwiftUI
 import MDTheme
@@ -23,6 +23,10 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
     private var textLayoutManager: NSTextLayoutManager
     private var textDocumentView: MDTextView!
     private var model: MDModel
+    #if os(macOS)
+    private var scrollView: NSScrollView?
+    private var textFinder = NSTextFinder()
+    #endif
 
     required init?(coder: NSCoder) {
         fatalError()
@@ -49,6 +53,7 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
         textDocumentView.setString(model.text)
         textDocumentView.isEditable = model.isEditable
         textDocumentView.themeProvider = model.themeProvider
+
     }
 
     public override func loadView() {
@@ -68,8 +73,9 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
         textContainer.heightTracksTextView = false
 
         #if os(macOS)
-        let scrollView = MDScrollView()
+        let scrollView = NSScrollView()
 
+        self.scrollView = scrollView
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = true
         scrollView.drawsBackground = true
@@ -82,6 +88,11 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
         clipView.autoresizingMask = [.width, .height]
 
         scrollView.documentView = textView
+
+        textFinder.client = textView
+        textFinder.findBarContainer = scrollView
+        textView.textFinder = textFinder
+
 //        scrollView.contentView = clipView
         self.textDocumentView = textView
         self.view = scrollView

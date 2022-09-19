@@ -38,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8811736028D82F6F00926008 /* MDEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = MDEditor; path = ..; sourceTree = "<group>"; };
 		8848861728C83E8500BBA02F /* MDEditorDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoApp.swift; sourceTree = "<group>"; };
 		8848861928C83E8500BBA02F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8848861B28C83E8800BBA02F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -52,7 +53,6 @@
 		885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
 		88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		88B1C4D828CC946F00409D6B /* MDEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = MDEditor; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +85,7 @@
 		8848860B28C83E8500BBA02F = {
 			isa = PBXGroup;
 			children = (
-				88B1C4D828CC946F00409D6B /* MDEditor */,
+				8811736028D82F6F00926008 /* MDEditor */,
 				8848861628C83E8500BBA02F /* MDEditorDemo */,
 				8848862828C83E8800BBA02F /* MDEditorDemoTests */,
 				8848863228C83E8800BBA02F /* MDEditorDemoUITests */,
@@ -446,7 +446,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MDEditorDemo/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -480,7 +480,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MDEditorDemo/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
