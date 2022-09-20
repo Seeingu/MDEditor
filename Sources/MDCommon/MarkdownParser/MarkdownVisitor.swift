@@ -11,7 +11,6 @@ import AppKit
 import UIKit
 #endif
 import Markdown
-import MDCommon
 
 fileprivate extension MDRangeIterator {
     convenience init(at sourceRange: SourceRange) {

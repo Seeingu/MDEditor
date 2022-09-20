@@ -19,7 +19,7 @@ extension NSTextLayoutManager {
         return textSelectionNavigation.resolvedInsertionLocation(for: textSelection, writingDirection: .leftToRight)
     }
 
-    private func substring(for range: NSTextRange) -> String? {
+    internal func substring(for range: NSTextRange) -> String? {
         guard !range.isEmpty else { return nil }
         var output = String()
         enumerateSubstrings(from: range.location, options: .byComposedCharacterSequences, using: { (substring, textRange, _, stop) in

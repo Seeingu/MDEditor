@@ -212,6 +212,9 @@ extension MDTextView {
                 case "f":
                     showFinderBar()
                     return
+                case "z":
+                    undo()
+                    return
                 default:
                     break
             }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8811736428D8549100926008 /* ExampleMarkdownString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8811736328D8549100926008 /* ExampleMarkdownString.swift */; };
 		8848861828C83E8500BBA02F /* MDEditorDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848861728C83E8500BBA02F /* MDEditorDemoApp.swift */; };
 		8848861A28C83E8500BBA02F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8848861928C83E8500BBA02F /* ContentView.swift */; };
 		8848861C28C83E8800BBA02F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8848861B28C83E8800BBA02F /* Assets.xcassets */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		8811736028D82F6F00926008 /* MDEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = MDEditor; path = ..; sourceTree = "<group>"; };
+		8811736328D8549100926008 /* ExampleMarkdownString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleMarkdownString.swift; sourceTree = "<group>"; };
 		8848861728C83E8500BBA02F /* MDEditorDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoApp.swift; sourceTree = "<group>"; };
 		8848861928C83E8500BBA02F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8848861B28C83E8800BBA02F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -82,6 +84,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8811736128D8545D00926008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */,
+				885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		8811736228D8547D00926008 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				8811736328D8549100926008 /* ExampleMarkdownString.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		8848860B28C83E8500BBA02F = {
 			isa = PBXGroup;
 			children = (
@@ -99,14 +118,14 @@
 		8848861628C83E8500BBA02F /* MDEditorDemo */ = {
 			isa = PBXGroup;
 			children = (
+				8811736228D8547D00926008 /* Shared */,
+				8811736128D8545D00926008 /* Views */,
 				8848866128C89BE400BBA02F /* Info.plist */,
 				8848861728C83E8500BBA02F /* MDEditorDemoApp.swift */,
 				8848861928C83E8500BBA02F /* ContentView.swift */,
 				8848861B28C83E8800BBA02F /* Assets.xcassets */,
 				8848862028C83E8800BBA02F /* MDEditorDemo.entitlements */,
 				8848861D28C83E8800BBA02F /* Preview Content */,
-				885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */,
-				885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */,
 			);
 			path = MDEditorDemo;
 			sourceTree = "<group>";
@@ -280,6 +299,7 @@
 				885F791728D5BD5E00C02E9C /* MarkdownEditorView.swift in Sources */,
 				8848861A28C83E8500BBA02F /* ContentView.swift in Sources */,
 				885F791328D5BA5C00C02E9C /* MarkdownPreview.swift in Sources */,
+				8811736428D8549100926008 /* ExampleMarkdownString.swift in Sources */,
 				8848861828C83E8500BBA02F /* MDEditorDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -178,8 +178,6 @@ extension MDTextView {
                 case .text:
                     // text use default style
                     break
-                @unknown default:
-                    print("default: \(attr.plain) \(attr.mdType)")
             }
                 // set background color of paragraph individually
             for attribute in additionalStringAttributes {

@@ -339,7 +339,6 @@ public struct MDStrikeThrough: MDInline {
 
 /// Markdown type enumeration
 public enum MDType {
-    case paragraph
     case heading(MDHeading)
     case codeBlock(MDCodeBlock)
     case codeInline(MDInlineCode)

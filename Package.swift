@@ -25,14 +25,16 @@ let package = Package(
             dependencies: [
                 "MDCommon",
                 "MDTheme",
-                .product(name: "Markdown", package: "swift-markdown")]),
+            ]),
         .target(
             name: "MDEditorPreview",
             dependencies: [
                 "MDCommon",
                 "MDTheme",
-                .product(name: "Markdown", package: "swift-markdown")]),
-        .target(name: "MDCommon", dependencies: []),
+            ]),
+        .target(name: "MDCommon", dependencies: [
+            .product(name: "Markdown", package: "swift-markdown")
+        ]),
         .target(name: "MDTheme", dependencies: ["MDCommon"]),
         .testTarget(
             name: "MDEditorTests",
