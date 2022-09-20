@@ -9,7 +9,7 @@ import SwiftUI
 import MDEditorPreview
 
 struct MarkdownPreview: View {
-    @State var markdown: String = "# title \n\n ## title \n\n *bold*"
+    @State var markdown: String = EXAMPLE_MARKDOWN_STRING
     var body: some View {
         MDEditorAttributedStringPreview(markdownText: $markdown)
     }

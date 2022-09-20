@@ -202,6 +202,8 @@ class MDTextView: UIScrollView, UIGestureRecognizerDelegate {
 
 #endif
 
+// MARK: - Common
+
 extension MDTextView {
     internal var lines: [MDSourceLineInfo] {
         get {

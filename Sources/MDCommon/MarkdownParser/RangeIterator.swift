@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import MDCommon
 
 internal class MDRangeIterator {
     internal var previousRange: NSRange = NSRange(location: 0, length: 0)
