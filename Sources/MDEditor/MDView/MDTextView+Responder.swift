@@ -120,8 +120,8 @@ extension MDTextView {
         else {
             return
         }
+        updateString(string, textRanges: [firstTextSelectionRange])
 
-        replaceCharacters(in: firstTextSelectionRange, with: string)
     }
 
     func cutAction() {
@@ -130,9 +130,7 @@ extension MDTextView {
     }
 
     func deleteAction() {
-        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
-            insertString("", replacementRange: convertRange(from: textRange))
-        }
+        deleteString(textRanges: textLayoutManager.textSelections.flatMap(\.textRanges))
     }
 }
 
@@ -198,7 +196,9 @@ extension MDTextView {
 
         // MARK: - keyboard event
     override func keyDown(with event: NSEvent) {
+
         if event.modifierFlags.contains(.command) {
+
             switch event.charactersIgnoringModifiers {
                 case "c":
                     copyAction()
@@ -214,6 +214,9 @@ extension MDTextView {
                     return
                 case "z":
                     undo()
+                    return
+                case "Z":
+                    redo()
                     return
                 default:
                     break

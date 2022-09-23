@@ -61,5 +61,6 @@ extension MDFont {
 
 // MARK: - common
 extension MDFont {
-    public static var `mdDefault` = MDFont.monospacedSystemFont(ofSize: 22, weight: .regular)
+    public static var `mdDefault` = MDFont.systemFont(ofSize: 16, weight: .regular)
+    public static var `mdDefaultMono` = MDFont.monospacedSystemFont(ofSize: 16, weight: .regular)
 }

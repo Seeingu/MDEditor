@@ -12,7 +12,6 @@ import UIKit
 #endif
 import MDCommon
 
-// MARK: - High level markdown style
 public struct SupportParagraphStyle {
     public var lineHeight: Float
     public var backgroundColor: MDColor?
@@ -25,22 +24,14 @@ public struct MDSupportStyle {
     public var backgroundColor: MDColor?
     public var isLink: Bool?
     init() {
-        self.font = MDFont.monospacedSystemFont(ofSize: 20, weight: .regular)
-        self.paragraph = SupportParagraphStyle(lineHeight: 1.1)
+        self.font = MDFont.mdDefault
+        self.paragraph = SupportParagraphStyle(lineHeight: 1.5)
     }
 
-    func withGrayText() -> Self {
-        var style = self
-        style.foregroundColor = .lightGray
-        return style
-    }
     func withFontSize(_ size: CGFloat) -> Self {
         var style = self
         style.font = style.font.withSize(size)
         return style
-    }
-    func withFontSize(_ size: MDDefaultFontSize) -> Self {
-        return self.withFontSize(size.rawValue)
     }
     func withItalics() -> Self {
         var style = self

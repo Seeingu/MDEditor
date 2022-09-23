@@ -85,7 +85,7 @@ extension MDEditor {
 
 // MARK: - Coordinator
 extension MDEditor {
-    public class Coordinator: NSObject, MDTextViewControllDelegate {
+    public class Coordinator: NSObject, MDTextViewControlDelegate {
         var parent: MDEditor
 
         init(_ parent: MDEditor) {

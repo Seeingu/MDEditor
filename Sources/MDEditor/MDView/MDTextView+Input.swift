@@ -6,37 +6,51 @@
 //
 
 // MARK: - Common
+import MDCommon
 
 extension MDTextView {
-      internal func replaceCharacters(in range: NSTextRange, with string: String) {
+    internal func replaceCharacters(in range: NSTextRange, with string: String) {
         if !isEditable {
             return
         }
+        defer {
+            relayout()
+        }
+
+        stateModel.undoStackManager.registerUndo(
+            source: mdString,
+            caretLocation: caretLocation,
+            editRange: range)
+
         textContentStorage.textStorage?.replaceCharacters(in: convertRange(from: range), with: string)
         let newString = textContentStorage.textStorage!.string
         self.setString(newString)
-        textViewDelegate?.onTextChange(string)
-
-        relayout()
+        textViewDelegate?.onTextChange(newString)
     }
 
-    internal func insertString(_ string: String) {
-        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
+    // MARK: - String processing
+    func updateString(_ string: String, textRanges: [NSTextRange]) {
+        for textRange in textRanges {
             replaceCharacters(in: textRange, with: string)
         }
     }
-
-    internal func insertString(_ string: String, replacementRange: NSRange) {
-        textContentStorage?.performEditingTransaction {
-            if let textRange = convertRange(from: replacementRange) {
-                replaceCharacters(in: textRange, with: string)
-            } else {
-                insertText(string)
-            }
-        }
+    func updateString(_ string: String, ranges: [NSRange]) {
+        updateString(string, textRanges: ranges.compactMap { convertRange(from: $0) })
     }
 
-    internal func delete(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, allowsDecomposition: Bool) {
+    func insertString(_ string: String) {
+        updateString(string, ranges: textLayoutManager.textSelections.flatMap(\.textRanges).map { convertRange(from: $0) })
+    }
+
+    func insertString(_ string: String, replacementRange: NSRange) {
+        updateString(string, ranges: [replacementRange])
+    }
+
+    func deleteString(textRanges: [NSTextRange]) {
+        updateString("", textRanges: textRanges)
+    }
+
+    func delete(direction: NSTextSelectionNavigation.Direction, destination: NSTextSelectionNavigation.Destination, allowsDecomposition: Bool) {
         let textRanges = textLayoutManager.textSelections.flatMap { textSelection -> [NSTextRange] in
             return textLayoutManager.textSelectionNavigation.deletionRanges(
                 for: textSelection,
@@ -49,17 +63,14 @@ extension MDTextView {
         if textRanges.isEmpty {
             return
         }
-
-        textContentStorage.performEditingTransaction {
-            for textRange in textRanges {
-                replaceCharacters(in: textRange, with: "")
-            }
-        }
+        deleteString(textRanges: textRanges)
     }
 }
 
 #if os(macOS)
 import AppKit
+
+// MARK: - mac: NSTextInputClient
 
 extension MDTextView: NSTextInputClient {
     func attributedSubstring(forProposedRange range: NSRange, actualRange: NSRangePointer?) -> NSAttributedString? {
@@ -111,28 +122,27 @@ extension MDTextView: NSTextInputClient {
         guard let string = string as? String else {
             return
         }
-        for textRange in textLayoutManager.textSelections.flatMap(\.textRanges) {
-            replaceCharacters(in: textRange, with: string)
-        }
+        insertString(string)
     }
 
     func insertText(_ string: Any, replacementRange: NSRange) {
         guard let string = string as? String else {
             return
         }
-        textContentStorage?.performEditingTransaction {
-            if let textRange = convertRange(from: replacementRange) {
-                replaceCharacters(in: textRange, with: string)
-            } else {
-                insertText(string)
-            }
+        // check textRange validation first
+        if let _ = convertRange(from: replacementRange) {
+            insertString(string, replacementRange: replacementRange)
+        } else {
+            insertString(string)
         }
+
     }
 
 }
 #else
 import UIKit
 
+// MARK: iOS: UIKeyInput
 extension MDTextView: UIKeyInput {
     override var canBecomeFirstResponder: Bool {
         true

@@ -10,7 +10,7 @@ import MDCommon
 
 /// editor setting
 public protocol EditorThemeDelegate: AnyObject {
-    func loadEditorStyles(_ defaultStyles: EditorStyles) -> EditorStyles
+    func loadEditorStyles(colorScheme: MDColorScheme) -> EditorStyles
 }
 
 /// markdown content setting
@@ -20,7 +20,6 @@ public protocol MarkdownThemeDelegate: AnyObject {
     func loadCodeBlockStyles(_ defaultStyle: MDSupportStyle) -> MDCodeBlockStyles
     func loadInlineCodeStyles(_ defaultStyle: MDSupportStyle) -> MDInlineCodeStyles
     func loadLineBreakStyles(_ defaultStyle: MDSupportStyle) -> MDLineBreakStyles
-    func emphasisStyle(emphasisType: EmphasisType) -> MDEmphasisStyles
     func loadBlockQuoteStyles(_ defaultStyle: MDSupportStyle) -> MDBlockQuoteStyles
     func loadEmphasisStyles(_ defaultStyle: MDSupportStyle, emphasisType: EmphasisType) -> MDEmphasisStyles
     func loadUnorderedListStyles(_ defaultStyle: MDSupportStyle) -> MDUnorderedListStyles

@@ -17,8 +17,8 @@ public typealias MDViewController = UIViewController
 import SwiftUI
 import MDTheme
 
-public class MDTextViewController: MDViewController, NSTextContentManagerDelegate, NSTextContentStorageDelegate {
-    var delegate: MDTextViewControllDelegate?
+public class MDTextViewController: MDViewController {
+    var delegate: MDTextViewControlDelegate?
     private var textContentStorage: NSTextContentStorage
     private var textLayoutManager: NSTextLayoutManager
     private var textDocumentView: MDTextView!
@@ -67,6 +67,7 @@ public class MDTextViewController: MDViewController, NSTextContentManagerDelegat
 
         let textContainer = NSTextContainer(size: .zero)
         textLayoutManager.textContainer = textContainer
+
         textView.setString(model.text)
 
         textContainer.widthTracksTextView = true
@@ -119,6 +120,6 @@ extension MDTextViewController: MDTextViewDelegate {
     }
 }
 
-protocol MDTextViewControllDelegate {
+protocol MDTextViewControlDelegate {
     func textViewDidChange(_ textView: MDTextView)
 }

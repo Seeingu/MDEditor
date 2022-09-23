@@ -49,12 +49,12 @@
 		8848862928C83E8800BBA02F /* MDEditorDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoTests.swift; sourceTree = "<group>"; };
 		8848863328C83E8800BBA02F /* MDEditorDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoUITests.swift; sourceTree = "<group>"; };
 		8848863528C83E8800BBA02F /* MDEditorDemoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		8848866028C89BE400BBA02F /* MDEditorDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDEditorDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8848866028C89BE400BBA02F /* MDEditorDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = MDEditorDemo.app; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemo.app; sourceTree = "<absolute>"; };
 		8848866128C89BE400BBA02F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreview.swift; sourceTree = "<group>"; };
 		885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
-		88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = MDEditorDemoTests.xctest; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemoTests.xctest; sourceTree = "<absolute>"; };
+		88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = MDEditorDemoUITests.xctest; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemoUITests.xctest; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,10 +108,7 @@
 				8848861628C83E8500BBA02F /* MDEditorDemo */,
 				8848862828C83E8800BBA02F /* MDEditorDemoTests */,
 				8848863228C83E8800BBA02F /* MDEditorDemoUITests */,
-				8848866028C89BE400BBA02F /* MDEditorDemo.app */,
 				8848866328C89C0000BBA02F /* Frameworks */,
-				88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */,
-				88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};

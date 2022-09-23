@@ -9,63 +9,76 @@ import MDCommon
 import CoreGraphics
 
 // MARK: - Editor
-public extension EditorThemeDelegate {
 
-    func loadEditorStyles(_ defaultStyles: EditorStyles) -> EditorStyles {
-        defaultStyles
+public extension EditorThemeDelegate {
+    func loadEditorStyles(colorScheme: MDColorScheme) -> EditorStyles {
+        if colorScheme == .dark {
+            return EditorStyles(
+                selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5),
+                caretColor: .white,
+                editorBackground: MDColor(red: 7 / 255, green: 54 / 255, blue: 66 / 255, alpha: 1),
+                padding: 5.0)
+        } else {
+            return EditorStyles(
+                selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5),
+                caretColor: .black,
+                editorBackground: MDColor(red: 253 / 255, green: 246 / 255, blue: 227 / 255, alpha: 1),
+                padding: 5.0)
+
+        }
+
     }
 }
 
-public struct EditorStyles {
-    public var selectionColor: MDColor
-    public var caretColor: MDColor
-    public var editorBackground: MDColor
-    public var padding: Float
-
-    static let darkDefault = EditorStyles(selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .white, editorBackground: .black, padding: 5.0)
-    static let `default` = EditorStyles(selectionColor: MDColor.selectedTextBackgroundColor.withAlphaComponent(0.5), caretColor: .black, editorBackground: .white, padding: 5.0)
-}
-
-enum MDDefaultFontSize: CGFloat {
-    case largeTitle = 24
-    case normalTitle = 22
-    case normal = 20
-    case small = 18
-}
+class DefaultEditorTheme: EditorThemeDelegate {}
 
 // MARK: - Markdown
-// TODO: light/dark theme
+enum MDDefaultFontSize: CGFloat {
+    case title1 = 24
+    case title2 = 22
+    case title = 20
+    case normal = 16
+    case small = 14
+}
+
+/// Solarized Theme
 public extension MarkdownThemeDelegate {
     func loadDefaultStyles(colorScheme: MDColorScheme) -> MDSupportStyle {
         if colorScheme == .dark {
-            return ThemeBuilder.defaultDarkStyle
+            return ThemeBuilder()
+                .font(.mdDefault)
+                .foregroundColor(MDColor(red: 101 / 255, green: 123 / 255, blue: 131 / 255, alpha: 1))
+                .paragraph(lineHeight: 1.1)
+                .build()
         } else {
-            return ThemeBuilder.defaultStyle
+            return ThemeBuilder()
+                .font(.mdDefault)
+                .foregroundColor(MDColor(red: 0, green: 43 / 255, blue: 54 / 255, alpha: 1))
+                .paragraph(lineHeight: 1.5)
+                .build()
         }
     }
 
     func loadHeadingStyles(_ defaultStyle: MDSupportStyle, level: Int) -> MDHeadingStyles {
-        var fontSize: MDDefaultFontSize = .small
+        var fontSize: MDDefaultFontSize = .title
         switch level {
             case 1:
-                fontSize = .largeTitle
+                fontSize = .title1
             case 2:
-                fontSize = .normalTitle
+                fontSize = .title2
+
             default:
                 break
         }
 
-        let headingStyle = ThemeBuilder(from: defaultStyle)
-            .paragraph(lineHeight: 1.5)
-            .font(MDFont.monospacedSystemFont(ofSize: fontSize.rawValue, weight: .bold))
-            .build()
-        return MDHeadingStyles(level: defaultStyle.withFontSize(fontSize).withGrayText(), plainText: headingStyle)
+        return MDHeadingStyles(
+            level: defaultStyle.withFontSize(.small).withGrayText(),
+            plainText: defaultStyle.withFontSize(fontSize))
     }
 
     func loadCodeBlockStyles(_ defaultStyle: MDSupportStyle) -> MDCodeBlockStyles {
         let codeStyle = ThemeBuilder(from: defaultStyle)
-            .font(MDFont.mdDefault)
-            .foregroundColor(.systemPink)
+            .font(.mdDefaultMono)
             .build()
         return MDCodeBlockStyles(language: defaultStyle.withItalics(), quote: defaultStyle.withGrayText(), plainText: codeStyle)
     }
@@ -113,7 +126,7 @@ public extension MarkdownThemeDelegate {
     }
 
     func loadTableStyles(_ defaultStyle: MDSupportStyle) -> MDTableStyles {
-        return MDTableStyles(head: defaultStyle.withFontSize(.normalTitle).withBold(), item: defaultStyle, verticalDivider: defaultStyle.withGrayText(), horizontalDivider: defaultStyle.withGrayText())
+        return MDTableStyles(head: defaultStyle.withFontSize(.title).withBold(), item: defaultStyle, verticalDivider: defaultStyle.withGrayText(), horizontalDivider: defaultStyle.withGrayText())
     }
 
     func loadLinkStyles(_ defaultStyle: MDSupportStyle) -> MDLinkStyles {
@@ -135,4 +148,20 @@ public extension MarkdownThemeDelegate {
         return MDStrikeThroughStyles(symbol: defaultStyle.withGrayText(), plainText: defaultStyle)
     }
 
+}
+
+fileprivate extension MDSupportStyle {
+    func withGrayText() -> Self {
+        var style = self
+        style.foregroundColor = .lightGray
+        return style
+    }
+
+    func withFontSize(_ size: MDDefaultFontSize) -> Self {
+        return self.withFontSize(size.rawValue)
+    }
+
+}
+
+class DefaultMarkdownTheme: MarkdownThemeDelegate {
 }
