@@ -15,17 +15,6 @@ import MDCommon
 
 /// internal theme builder
 internal class ThemeBuilder {
-    static let defaultStyle = ThemeBuilder()
-        .font(MDFont.monospacedSystemFont(ofSize: 20, weight: .regular))
-        .paragraph(lineHeight: 1.1)
-        .build()
-
-    static let defaultDarkStyle = ThemeBuilder()
-        .font(MDFont.monospacedSystemFont(ofSize: 20, weight: .regular))
-        .foregroundColor(.white)
-        .paragraph(lineHeight: 1.1)
-        .build()
-
     private var style = MDSupportStyle()
 
     init() {}

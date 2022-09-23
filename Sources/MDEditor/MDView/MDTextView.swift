@@ -299,6 +299,14 @@ extension MDTextView {
         }
     }
 
+    var caretLocation: NSTextLocation {
+        get {
+            let location = textLayoutManager.firstSelection?.firstTextRange?.location
+
+            return location ?? textLayoutManager.documentRange.location
+        }
+    }
+
     public var isEditable: Bool {
         get {
             stateModel.isEditable

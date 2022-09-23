@@ -7,125 +7,79 @@
 
 import MDCommon
 
+public struct EditorStyles {
+    public var selectionColor: MDColor
+    public var caretColor: MDColor
+    public var editorBackground: MDColor
+    public var padding: Float
+}
+
 open class ThemeProvider {
     public static let `default` = ThemeProvider()
 
-    public weak var editorThemeDelegate: EditorThemeDelegate?
-    public weak var markdownThemeDelegate: MarkdownThemeDelegate?
+    public var editorThemeDelegate: EditorThemeDelegate = DefaultEditorTheme()
+    public var markdownThemeDelegate: MarkdownThemeDelegate = DefaultMarkdownTheme()
 
-    public var editorStyles: EditorStyles
-
-    public var defaultMarkdownStyles: MDSupportStyle
+    public var editorStyles: EditorStyles {
+        editorThemeDelegate.loadEditorStyles(colorScheme: colorScheme)
+    }
 
     public var colorScheme: MDColorScheme
 
+    public var defaultMarkdownStyles: MDSupportStyle {
+        markdownThemeDelegate.loadDefaultStyles(colorScheme: colorScheme)
+    }
+
     public init(_ colorScheme: MDColorScheme = .light) {
         self.colorScheme = colorScheme
-        if colorScheme == .dark {
-            self.editorStyles = EditorStyles.darkDefault
-            self.defaultMarkdownStyles = ThemeBuilder.defaultDarkStyle
-
-        } else {
-            self.editorStyles = EditorStyles.default
-            self.defaultMarkdownStyles = ThemeBuilder.defaultStyle
-        }
     }
 
     public func headingStyle(level: Int) -> MDHeadingStyles {
-        if let headingStyles = markdownThemeDelegate?.loadHeadingStyles(defaultMarkdownStyles, level: level) {
-            return headingStyles
-        }
-        return MDHeadingStyles(default: defaultMarkdownStyles)
+         markdownThemeDelegate.loadHeadingStyles(defaultMarkdownStyles, level: level)
     }
 
     public func blockQuoteStyle() -> MDBlockQuoteStyles {
-        if let blockQuoteStyles = markdownThemeDelegate?.loadBlockQuoteStyles(defaultMarkdownStyles) {
-            return blockQuoteStyles
-        } else {
-            return MDBlockQuoteStyles(default: defaultMarkdownStyles)
-        }
+        markdownThemeDelegate.loadBlockQuoteStyles(defaultMarkdownStyles)
     }
 
     public func unorderedListStyle() -> MDUnorderedListStyles {
-        if let unorderedListStyles = markdownThemeDelegate?.loadUnorderedListStyles(defaultMarkdownStyles) {
-            return unorderedListStyles
-        }
-        return MDUnorderedListStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadUnorderedListStyles(defaultMarkdownStyles)
     }
 
     public func orderedListStyle() -> MDOrderedListStyles {
-        if let orderedListStyles = markdownThemeDelegate?.loadOrderedListStyles(defaultMarkdownStyles) {
-            return orderedListStyles
-        }
-        return MDOrderedListStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadOrderedListStyles(defaultMarkdownStyles)
     }
 
     public func tableStyle() -> MDTableStyles {
-        if let tableStyels = markdownThemeDelegate?.loadTableStyles(defaultMarkdownStyles) {
-            return tableStyels
-        }
-        return MDTableStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadTableStyles(defaultMarkdownStyles)
     }
 
     public func lineBreakStyle() -> MDLineBreakStyles {
-        if let lineBreakStyles = markdownThemeDelegate?.loadLineBreakStyles(defaultMarkdownStyles) {
-            return lineBreakStyles
-        }
-        return MDLineBreakStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadLineBreakStyles(defaultMarkdownStyles)
     }
 
     public func codeBlockStyle() -> MDCodeBlockStyles {
-        if let codeBlockStyles = markdownThemeDelegate?.loadCodeBlockStyles(defaultMarkdownStyles) {
-            return codeBlockStyles
-        } else {
-            return MDCodeBlockStyles(default: defaultMarkdownStyles)
-        }
+        markdownThemeDelegate.loadCodeBlockStyles(defaultMarkdownStyles)
     }
 
     public func inlineCodeStyle() -> MDInlineCodeStyles {
-        if let inlineStyles = markdownThemeDelegate?.loadInlineCodeStyles(defaultMarkdownStyles) {
-            return inlineStyles
-        } else {
-            return MDInlineCodeStyles(default: defaultMarkdownStyles)
-        }
+        markdownThemeDelegate.loadInlineCodeStyles(defaultMarkdownStyles)
     }
 
     public func emphasisStyle(emphasisType: EmphasisType) -> MDEmphasisStyles {
-        if let emphasisStyles = markdownThemeDelegate?.loadEmphasisStyles(defaultMarkdownStyles, emphasisType: emphasisType) {
-            return emphasisStyles
-        }
-        return MDEmphasisStyles(default: defaultMarkdownStyles)
-
+        markdownThemeDelegate.loadEmphasisStyles(defaultMarkdownStyles, emphasisType: emphasisType)
     }
 
     public func linkStyle() -> MDLinkStyles {
-        if let linkStyles = markdownThemeDelegate?.loadLinkStyles(defaultMarkdownStyles) {
-            return linkStyles
-        }
-        return MDLinkStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadLinkStyles(defaultMarkdownStyles)
     }
 
     public func imageStyle() -> MDImageStyles {
-        if let imageStyles = markdownThemeDelegate?.loadImageStyles(defaultMarkdownStyles) {
-            return imageStyles
-        }
-        return MDImageStyles(default: defaultMarkdownStyles)
+        markdownThemeDelegate.loadImageStyles(defaultMarkdownStyles)
     }
 
     public func strikeThroughStyle() -> MDStrikeThroughStyles {
-        if let strikeThroughStyles = markdownThemeDelegate?.loadStrikeThroughStyles(defaultMarkdownStyles) {
-            return strikeThroughStyles
-        }
-        return MDStrikeThroughStyles(default: defaultMarkdownStyles)
-    }
-
-    public func reloadEditorStyles() {
-        if let editorTheme = editorThemeDelegate {
-            self.editorStyles = editorTheme.loadEditorStyles(self.editorStyles)
-        }
-        if let markdownTheme = markdownThemeDelegate {
-            self.defaultMarkdownStyles = markdownTheme.loadDefaultStyles(colorScheme: colorScheme)
-        }
+        markdownThemeDelegate.loadStrikeThroughStyles(defaultMarkdownStyles)
     }
 
 }

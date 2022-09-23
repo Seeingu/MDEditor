@@ -72,7 +72,6 @@ extension MDTextView {
     }
 
     internal func updateEditorRender() {
-        themeProvider.reloadEditorStyles()
         viewLayer.backgroundColor = themeProvider.editorStyles.editorBackground.cgColor
         relayout()
     }

@@ -34,4 +34,6 @@ internal class MDTextViewStateModel {
     internal var themeProvider: ThemeProvider = ThemeProvider.default
 
     internal var isEditable: Bool = true
+
+    var undoStackManager = UndoStackManager()
 }

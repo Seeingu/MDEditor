@@ -6,9 +6,6 @@
 //
 
 import Foundation
+import SwiftUI
 
-// TODO: adapt with SwiftUI/ColorScheme
-public enum MDColorScheme {
-    case light
-    case dark
-}
+public typealias MDColorScheme = ColorScheme

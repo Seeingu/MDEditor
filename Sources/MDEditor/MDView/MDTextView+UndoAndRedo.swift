@@ -7,16 +7,41 @@
 
 import Foundation
 
-struct MDUndoElement {
-    let source: String
-
-}
+#if os(macOS)
+import AppKit
+#else
+import UIKit
+#endif
 
 extension MDTextView {
     internal func undo() {
-        undoManager?.undo()
+        guard let undoSource = stateModel.undoStackManager.undo() else {
+            return
+        }
+        stateModel.undoStackManager.registerRedo(
+            source: mdString,
+            caretLocation: caretLocation,
+            editRange: undoSource.editRange)
+
+        self.setString(undoSource.source)
+        textViewDelegate?.onTextChange(undoSource.source)
+        changeCaretPosition(in: NSTextRange(location: undoSource.caretLocation))
+
+        // TODO: works with undoManager
+
     }
     internal func redo() {
-        undoManager?.redo()
+        guard let undoSource = stateModel.undoStackManager.redo() else {
+            return
+        }
+
+        stateModel.undoStackManager.registerUndo(
+            source: mdString,
+            caretLocation: caretLocation,
+            editRange: undoSource.editRange)
+
+        self.setString(undoSource.source)
+        textViewDelegate?.onTextChange(undoSource.source)
+        changeCaretPosition(in: NSTextRange(location: undoSource.caretLocation))
     }
 }
