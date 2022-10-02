@@ -36,4 +36,7 @@ internal class MDTextViewStateModel {
     internal var isEditable: Bool = true
 
     var undoStackManager = UndoStackManager()
+
+    var caretTimer: Timer?
+    var caretVisible: Bool = true
 }

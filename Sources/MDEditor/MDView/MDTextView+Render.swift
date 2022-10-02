@@ -195,6 +195,7 @@ extension MDTextView {
     internal func updateSelectionHighlights() {
         if !textLayoutManager.textSelections.isEmpty {
             selectionLayer.sublayers = nil
+            stateModel.caretTimer?.invalidate()
             for textSelection in textLayoutManager.textSelections {
                 for textRange in textSelection.textRanges {
                     textLayoutManager.enumerateTextSegments(in: textRange,
@@ -204,17 +205,35 @@ extension MDTextView {
                         highlightFrame.origin.x += padding
                         let highlight = MDBaseLayer()
                         if highlightFrame.size.width > 0 {
+                            stateModel.caretVisible = false
                             highlight.backgroundColor = themeProvider.editorStyles.selectionColor.cgColor
+                            highlight.frame = highlightFrame
+                            selectionLayer.addSublayer(highlight)
                         } else {
-                            highlightFrame.size.width = 1 // fatten up the cursor
-                            highlight.backgroundColor = themeProvider.editorStyles.caretColor.cgColor
+                            stateModel.caretVisible = true
+                            toggleCaret(frame: highlightFrame)
+                            self.stateModel.caretTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                                guard let self = self else { return }
+                                self.toggleCaret(frame: highlightFrame)
+                            }
                         }
-                        highlight.frame = highlightFrame
-                        selectionLayer.addSublayer(highlight)
                         return true
                     }
                 }
             }
         }
+    }
+
+    private func toggleCaret(frame: CGRect) {
+        var frame = frame
+        selectionLayer.sublayers = nil
+        let subLayer = MDBaseLayer()
+        if self.stateModel.caretVisible {
+            frame.size.width = 1 // fatten up the cursor
+            subLayer.backgroundColor = self.themeProvider.editorStyles.caretColor.cgColor
+            subLayer.frame = frame
+            selectionLayer.addSublayer(subLayer)
+        }
+        stateModel.caretVisible.toggle()
     }
 }

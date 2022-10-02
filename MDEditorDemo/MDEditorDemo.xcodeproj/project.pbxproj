@@ -41,6 +41,9 @@
 /* Begin PBXFileReference section */
 		8811736028D82F6F00926008 /* MDEditor */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = MDEditor; path = ..; sourceTree = "<group>"; };
 		8811736328D8549100926008 /* ExampleMarkdownString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleMarkdownString.swift; sourceTree = "<group>"; };
+		882F946228E4414900DE8DDF /* MDEditorDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDEditorDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		882F946328E4414900DE8DDF /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		882F946428E4414900DE8DDF /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MDEditorDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8848861728C83E8500BBA02F /* MDEditorDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoApp.swift; sourceTree = "<group>"; };
 		8848861928C83E8500BBA02F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		8848861B28C83E8800BBA02F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -49,12 +52,9 @@
 		8848862928C83E8800BBA02F /* MDEditorDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoTests.swift; sourceTree = "<group>"; };
 		8848863328C83E8800BBA02F /* MDEditorDemoUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoUITests.swift; sourceTree = "<group>"; };
 		8848863528C83E8800BBA02F /* MDEditorDemoUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDEditorDemoUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		8848866028C89BE400BBA02F /* MDEditorDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = MDEditorDemo.app; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemo.app; sourceTree = "<absolute>"; };
 		8848866128C89BE400BBA02F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		885F791228D5BA5C00C02E9C /* MarkdownPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownPreview.swift; sourceTree = "<group>"; };
 		885F791628D5BD5E00C02E9C /* MarkdownEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownEditorView.swift; sourceTree = "<group>"; };
-		88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = MDEditorDemoTests.xctest; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemoTests.xctest; sourceTree = "<absolute>"; };
-		88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = MDEditorDemoUITests.xctest; path = /Users/seeu/works/swift_workspace/MDEditor/MDEditorDemo/build/Debug/MDEditorDemoUITests.xctest; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +109,9 @@
 				8848862828C83E8800BBA02F /* MDEditorDemoTests */,
 				8848863228C83E8800BBA02F /* MDEditorDemoUITests */,
 				8848866328C89C0000BBA02F /* Frameworks */,
+				882F946228E4414900DE8DDF /* MDEditorDemo.app */,
+				882F946328E4414900DE8DDF /* MDEditorDemoTests.xctest */,
+				882F946428E4414900DE8DDF /* MDEditorDemoUITests.xctest */,
 			);
 			sourceTree = "<group>";
 		};
@@ -180,7 +183,7 @@
 				885F791428D5BA8900C02E9C /* MDEditorPreview */,
 			);
 			productName = MDEditorDemo;
-			productReference = 8848866028C89BE400BBA02F /* MDEditorDemo.app */;
+			productReference = 882F946228E4414900DE8DDF /* MDEditorDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 		8848862428C83E8800BBA02F /* MDEditorDemoTests */ = {
@@ -198,7 +201,7 @@
 			);
 			name = MDEditorDemoTests;
 			productName = MDEditorDemoTests;
-			productReference = 88B1C4D628CC945F00409D6B /* MDEditorDemoTests.xctest */;
+			productReference = 882F946328E4414900DE8DDF /* MDEditorDemoTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		8848862E28C83E8800BBA02F /* MDEditorDemoUITests */ = {
@@ -216,7 +219,7 @@
 			);
 			name = MDEditorDemoUITests;
 			productName = MDEditorDemoUITests;
-			productReference = 88B1C4D728CC945F00409D6B /* MDEditorDemoUITests.xctest */;
+			productReference = 882F946428E4414900DE8DDF /* MDEditorDemoUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
